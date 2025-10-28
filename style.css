@@ -1,0 +1,301 @@
+/* --- 1. Configuración Global y Tema Oscuro --- */
+:root {
+    --bg-color: #121212; /* Fondo oscuro */
+    --surface-color: #1e1e1e; /* Color de las tarjetas */
+    --primary-color: #007bff; /* Azul brillante (para botones) */
+    --text-color: #e0e0e0; /* Texto principal (blanco suave) */
+    --text-muted: #888; /* Texto secundario */
+    --border-color: #333;
+    --danger-color: #e53935; /* Rojo para alertas */
+    --warning-color: #fdd835; /* Amarillo para advertencias */
+    --safe-color: #43a047; /* Verde para cosas seguras */
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    line-height: 1.6;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding: 2rem 1rem;
+}
+
+.container {
+    width: 100%;
+    max-width: 800px;
+    background-color: var(--surface-color);
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+}
+
+/* --- 2. Encabezado y Navegación de Pestañas --- */
+header {
+    background-color: #181818;
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid var(--border-color);
+    text-align: center;
+}
+
+header h1 {
+    color: white;
+    margin-bottom: 0.25rem;
+}
+
+header p {
+    color: var(--text-muted);
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.tool-nav {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.nav-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--border-color);
+    color: var(--text-muted);
+    border: none;
+    padding: 0.75rem 1.25rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.nav-btn:hover {
+    background: #444;
+    color: white;
+}
+
+.nav-btn.active {
+    background: var(--primary-color);
+    color: white;
+    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+}
+
+.nav-btn svg {
+    margin-bottom: 2px; /* Alineación visual del icono */
+}
+
+/* --- 3. Contenedor Principal de Herramientas --- */
+main {
+    padding: 2rem;
+}
+
+.tool-content {
+    display: none; /* Oculto por defecto */
+}
+
+.tool-content.active {
+    display: block; /* Visible cuando está activo */
+}
+
+.tool-description {
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+h2 {
+    text-align: center;
+    color: white;
+    margin-bottom: 0.5rem;
+}
+
+/* --- 4. Estilos de Formulario (Común) --- */
+.input-group {
+    display: flex;
+    margin-bottom: 1.5rem;
+}
+
+.input-group input[type="text"] {
+    flex-grow: 1;
+    border: 1px solid var(--border-color);
+    background: #222;
+    color: var(--text-color);
+    padding: 0.8rem;
+    font-size: 1rem;
+    border-radius: 8px 0 0 8px;
+    outline: none;
+}
+
+.input-group button {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0 1.5rem;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    border-radius: 0 8px 8px 0;
+    transition: background-color 0.2s ease;
+}
+
+.input-group button:hover {
+    background: #0056b3;
+}
+
+/* --- 5. HERRAMIENTA 1: Analizador de Enlaces --- */
+#analysis-results .result-card {
+    background: #252525;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    border-left: 5px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+#analysis-results .result-label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 0.25rem;
+}
+
+#analysis-results .result-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 0.5rem;
+    word-break: break-all;
+}
+
+#analysis-results .result-explanation {
+    font-size: 0.9rem;
+}
+
+/* Colores de estado del analizador */
+#analysis-results .result-card.safe {
+    border-left-color: var(--safe-color);
+}
+#analysis-results .result-card.warning {
+    border-left-color: var(--warning-color);
+}
+#analysis-results .result-card.danger {
+    border-left-color: var(--danger-color);
+}
+
+/* --- 6. HERRAMIENTA 2: Juego de Phishing --- */
+.challenge-card {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+}
+
+.challenge-card h3 {
+    padding: 1rem;
+    background: #252525;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.challenge-card img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.game-controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.game-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    padding: 1rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.game-btn.real {
+    background-color: var(--safe-color);
+    color: white;
+}
+.game-btn.real:hover {
+    background-color: #388e3c;
+}
+
+.game-btn.phishing {
+    background-color: var(--danger-color);
+    color: white;
+}
+.game-btn.phishing:hover {
+    background-color: #c62828;
+}
+
+/* Tarjeta de Feedback (Correcto/Incorrecto) */
+.feedback-card {
+    padding: 1.5rem;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.feedback-card.correct {
+    background: rgba(67, 160, 71, 0.2);
+    border: 1px solid var(--safe-color);
+}
+.feedback-card.correct h4 {
+    color: var(--safe-color);
+}
+
+.feedback-card.incorrect {
+    background: rgba(229, 57, 53, 0.2);
+    border: 1px solid var(--danger-color);
+}
+.feedback-card.incorrect h4 {
+    color: var(--danger-color);
+}
+
+.feedback-card h4 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.feedback-card p {
+    margin-bottom: 1.5rem;
+    font-size: 1rem;
+}
+
+#btn-next {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+#btn-next:hover {
+    background: #0056b3;
+}
+
