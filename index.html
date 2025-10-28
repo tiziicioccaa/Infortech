@@ -42,16 +42,25 @@
             cursor: not-allowed;
             background-color: #374151; /* gray-700 */
         }
+
+        /* Estilos para el marcador */
+        .score-box {
+            background-color: #1F2937; /* gray-800 */
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.75rem; /* rounded-xl */
+            font-size: 1.25rem; /* text-xl */
+            font-weight: 600; /* semibold */
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-white font-sans flex items-center justify-center min-h-screen p-4">
 
     <!-- Contenedor principal para alinear las dos tarjetas -->
-    <div class="container mx-auto max-w-6xl">
+    <div class="container mx-auto max-w-7xl">
         <div class="flex flex-col lg:flex-row gap-8">
             
             <!-- Columna 1: Ta-Te-Ti -->
-            <div class="bg-gray-800 p-6 md:p-8 rounded-2xl shadow-2xl text-center w-full lg:w-1/2">
+            <div class="bg-gray-800 p-6 md:p-8 rounded-2xl shadow-2xl text-center w-full lg:w-1/2 flex flex-col">
                 
                 <h1 class="text-4xl md:text-5xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-pink-500">
                     Ta-Te-Ti
@@ -64,15 +73,37 @@
                 <div id="gameBoard" class="grid grid-cols-3 gap-2 bg-gray-900 p-2 rounded-lg max-w-xs mx-auto">
                     <!-- Celdas generadas por JS -->
                 </div>
+
+                <!-- NUEVO: Marcador -->
+                <div class="mt-8">
+                    <h3 class="text-2xl font-bold mb-4 text-gray-300">Marcador</h3>
+                    <div class="flex justify-center gap-4">
+                        <div class="score-box text-blue-400">
+                            X: <span id="scoreX">0</span>
+                        </div>
+                        <div class="score-box text-gray-400">
+                            Empates: <span id="scoreDraw">0</span>
+                        </div>
+                        <div class="score-box text-pink-400">
+                            O: <span id="scoreO">0</span>
+                        </div>
+                    </div>
+                </div>
         
-                <button id="resetButton" class="mt-8 bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 px-8 rounded-full text-lg transition duration-300 shadow-lg focus:outline-none focus:ring-2 focus:ring-pink-400 focus:ring-opacity-75">
-                    Reiniciar Juego
-                </button>
+                <!-- Botones de control -->
+                <div class="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
+                    <button id="resetRoundButton" class="bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 px-8 rounded-full text-lg transition duration-300 shadow-lg focus:outline-none focus:ring-2 focus:ring-pink-400 focus:ring-opacity-75">
+                        Reiniciar Ronda
+                    </button>
+                    <button id="resetScoreButton" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-8 rounded-full text-lg transition duration-300 shadow-lg focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-75">
+                        Reiniciar Marcador
+                    </button>
+                </div>
 
             </div>
 
             <!-- Columna 2: Analizador de Enlaces -->
-            <div class="bg-gray-800 p-6 md:p-8 rounded-2xl shadow-2xl text-center w-full lg:w-1/2">
+            <div class="bg-gray-800 p-6 md:p-8 rounded-2xl shadow-2xl w-full lg:w-1/2 flex flex-col">
                 
                 <h1 class="text-4xl md:text-5xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-blue-500">
                     Analizador
@@ -91,7 +122,7 @@
 
                 <p id="analyzerStatus" class="text-lg mt-4 h-6 text-gray-400"></p>
 
-                <div id="resultsContainer" class="mt-6 text-left bg-gray-900 p-4 rounded-lg min-h-[200px] overflow-auto text-gray-300">
+                <div id="resultsContainer" class="mt-6 text-left bg-gray-900 p-4 rounded-lg flex-grow overflow-auto text-gray-300 min-h-[300px]">
                     <p>Los resultados aparecerán aquí...</p>
                 </div>
 
@@ -107,17 +138,41 @@
             
             const gameBoardElement = document.getElementById('gameBoard');
             const statusMessage = document.getElementById('statusMessage');
-            const resetButton = document.getElementById('resetButton');
+            const resetRoundButton = document.getElementById('resetRoundButton');
+            const resetScoreButton = document.getElementById('resetScoreButton');
             
+            // Elementos del marcador
+            const scoreXElement = document.getElementById('scoreX');
+            const scoreOElement = document.getElementById('scoreO');
+            const scoreDrawElement = document.getElementById('scoreDraw');
+
             let currentPlayer = 'X';
             let gameActive = true;
             let boardState = Array(9).fill(null);
+            // Objeto para el marcador
+            let score = { X: 0, O: 0, draw: 0 };
 
             const winningCombinations = [
                 [0, 1, 2], [3, 4, 5], [6, 7, 8],
                 [0, 3, 6], [1, 4, 7], [2, 5, 8],
                 [0, 4, 8], [2, 4, 6]
             ];
+
+            // Función para actualizar la UI del marcador
+            function updateScoreboard() {
+                scoreXElement.textContent = score.X;
+                scoreOElement.textContent = score.O;
+                scoreDrawElement.textContent = score.draw;
+            }
+
+            // Función para reiniciar el marcador
+            function handleResetScore() {
+                score.X = 0;
+                score.O = 0;
+                score.draw = 0;
+                updateScoreboard();
+                initializeGame(); // También reinicia la ronda actual
+            }
 
             function initializeGame() {
                 boardState.fill(null);
@@ -133,6 +188,8 @@
                     cell.addEventListener('click', handleCellClick);
                     gameBoardElement.appendChild(cell);
                 }
+                // No reseteamos el marcador, solo actualizamos la UI (por si es la primera carga)
+                updateScoreboard();
             }
 
             function handleCellClick(event) {
@@ -148,9 +205,13 @@
                 if (checkWin()) {
                     gameActive = false;
                     statusMessage.textContent = `¡Ganó ${currentPlayer}!`;
+                    score[currentPlayer]++; // Sumar al marcador
+                    updateScoreboard();
                 } else if (checkDraw()) {
                     gameActive = false;
                     statusMessage.textContent = '¡Es un empate!';
+                    score.draw++; // Sumar al marcador
+                    updateScoreboard();
                 } else {
                     switchPlayer();
                 }
@@ -195,7 +256,8 @@
                 }
             }
             
-            resetButton.addEventListener('click', initializeGame);
+            resetRoundButton.addEventListener('click', initializeGame);
+            resetScoreButton.addEventListener('click', handleResetScore);
             initializeGame(); // Iniciar el Ta-Te-Ti
 
 
@@ -209,22 +271,19 @@
             analyzeButton.addEventListener('click', handleAnalyzeClick);
 
             async function handleAnalyzeClick() {
-                const url = urlInput.value.trim();
+                let url = urlInput.value.trim();
                 
-                // Validación simple de URL
                 if (!url.startsWith('http://') && !url.startsWith('https://')) {
-                    analyzerStatus.textContent = 'Por favor, introduce una URL válida (http:// o https://)';
-                    analyzerStatus.classList.add('text-red-400');
-                    return;
+                    // Intenta agregar https:// por defecto si no está
+                    url = 'https://' + url;
+                    urlInput.value = url; // Actualiza el input para el usuario
                 }
 
-                // Deshabilitar botón y mostrar carga
                 analyzerStatus.textContent = 'Analizando...';
                 analyzerStatus.classList.remove('text-red-400', 'text-green-400');
                 analyzeButton.disabled = true;
                 analyzeButton.classList.add('loading');
 
-                // Usamos un proxy CORS (allorigins.win) para evitar problemas de seguridad del navegador
                 const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
 
                 try {
@@ -235,30 +294,62 @@
                     }
 
                     const html = await response.text();
-                    
-                    // Usamos DOMParser para analizar el HTML obtenido
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(html, 'text/html');
 
-                    // Realizamos el análisis
-                    const title = doc.querySelector('title')?.textContent || 'Sin título';
-                    const links = doc.querySelectorAll('a');
+                    // --- Extracción de datos mejorada ---
+                    const title = doc.querySelector('title')?.textContent.trim() || 'Sin título';
+                    const h1 = doc.querySelector('h1')?.textContent.trim() || 'No se encontró H1';
+                    const description = doc.querySelector('meta[name="description"]')?.getAttribute('content')?.trim() || 'Sin meta descripción';
+                    
                     const images = doc.querySelectorAll('img');
                     const scripts = doc.querySelectorAll('script');
                     const styles = doc.querySelectorAll('link[rel="stylesheet"]');
 
-                    // Mostramos los resultados
-                    resultsContainer.innerHTML = `
+                    // Extraer los primeros 10 enlaces únicos (que no sean anclas #)
+                    const linkHrefs = Array.from(doc.querySelectorAll('a'))
+                        .map(a => a.getAttribute('href'))
+                        .filter(href => href && !href.startsWith('#') && href.trim() !== '')
+                        .filter((href, index, self) => self.indexOf(href) === index) // Únicos
+                        .slice(0, 10); // Los primeros 10
+
+                    // --- Mostrar resultados ---
+                    let resultsHTML = `
                         <h3 class="text-xl font-bold mb-3 text-white">Resultados para:</h3>
                         <p class="text-blue-300 truncate mb-4">${url}</p>
-                        <ul class="space-y-2">
-                            <li><strong>Título:</strong> ${title}</li>
-                            <li><strong>Enlaces (links):</strong> ${links.length}</li>
-                            <li><strong>Imágenes (img):</strong> ${images.length}</li>
-                            <li><strong>Scripts (script):</strong> ${scripts.length}</li>
-                            <li><strong>Hojas de estilo (link):</strong> ${styles.length}</li>
-                        </ul>
+                        
+                        <div class="space-y-3">
+                            <div>
+                                <strong class="text-gray-100">Título (title):</strong>
+                                <p class="text-sm pl-2">${title}</p>
+                            </div>
+                            <div>
+                                <strong class="text-gray-100">Encabezado (h1):</strong>
+                                <p class="text-sm pl-2">${h1}</p>
+                            </div>
+                            <div>
+                                <strong class="text-gray-100">Descripción (meta):</strong>
+                                <p class="text-sm pl-2">${description}</p>
+                            </div>
+                            <hr class="border-gray-700 my-3">
+                            <div>
+                                <strong class="text-gray-100">Conteo de etiquetas:</strong>
+                                <ul class="list-disc list-inside pl-2 text-sm">
+                                    <li>Imágenes (img): ${images.length}</li>
+                                    <li>Scripts (script): ${scripts.length}</li>
+                                    <li>Hojas de estilo (link): ${styles.length}</li>
+                                </ul>
+                            </div>
+                            <div>
+                                <strong class="text-gray-100">Primeros 10 enlaces encontrados:</strong>
+                                <ul class="list-decimal list-inside pl-2 text-sm space-y-1 mt-2">
+                                    ${linkHrefs.length > 0 ? linkHrefs.map(href => `<li class="truncate text-blue-400">${href}</li>`).join('') : '<li>No se encontraron enlaces.</li>'}
+                                </ul>
+                            </div>
+                        </div>
                     `;
+
+                    resultsContainer.innerHTML = resultsHTML;
                     analyzerStatus.textContent = 'Análisis completado.';
                     analyzerStatus.classList.add('text-green-400');
 
@@ -266,9 +357,8 @@
                     console.error('Error en el analizador:', error);
                     analyzerStatus.textContent = 'Error al analizar la URL.';
                     analyzerStatus.classList.add('text-red-400');
-                    resultsContainer.innerHTML = `<p>No se pudo obtener el contenido. Es posible que el sitio esté bloqueado o la URL sea incorrecta.</p>`;
+                    resultsContainer.innerHTML = `<p>No se pudo obtener el contenido. Es posible que el sitio esté bloqueado, la URL sea incorrecta o requiera JS para mostrarse.</p>`;
                 } finally {
-                    // Volver a habilitar el botón
                     analyzeButton.disabled = false;
                     analyzeButton.classList.remove('loading');
                 }
@@ -277,4 +367,3 @@
     </script>
 </body>
 </html>
-
