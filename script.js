@@ -65,7 +65,6 @@ document.addEventListener('DOMContentLoaded', () => {
             // url.hostname nos da ej: "login.google.com-support.xyz"
             const parts = url.hostname.split('.');
             // El dominio real son las últimas 2 partes (ej. "com-support.xyz" o "google.com")
-            // (Esto es una simplificación, pero funciona para la mayoría de los casos)
             const mainDomain = parts.slice(-2).join('.');
             
             domainValue.textContent = mainDomain;
@@ -174,6 +173,11 @@ document.addEventListener('DOMContentLoaded', () => {
             // Estado normal
             btnReal.style.display = 'inline-flex';
             btnPhishing.style.display = 'inline-flex';
+            
+            // --- ¡NUEVO! Habilita los botones ---
+            btnReal.disabled = false;
+            btnPhishing.disabled = false;
+
             feedbackCard.style.display = 'none'; // Oculta el feedback
             btnNext.textContent = "Siguiente Desafío";
         }
@@ -181,8 +185,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Función para manejar la respuesta del usuario
     function handleAnswer(userGuess) { // userGuess es true (para "real") o false (para "phishing")
+        
+        // --- ¡NUEVO! Deshabilita los botones ---
+        btnReal.disabled = true;
+        btnPhishing.disabled = true;
+
         const challenge = challenges[currentChallengeIndex];
-        const correctAnswer = !challenge.isPhishing; // La respuesta correcta es lo opuesto a si es phishing
+        // La respuesta correcta es true si NO es phishing
+        const correctAnswer = (challenge.isPhishing === false); 
 
         if (userGuess === correctAnswer) {
             // Respuesta correcta
@@ -228,8 +238,5 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Carga el primer desafío (índice 0) al iniciar la app
-    loadChallenge(currentChallengeIndex);
-
-});
-
+    load
 
