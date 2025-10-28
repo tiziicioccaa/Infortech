@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kit de Ciberseguridad</title>
+    
+    <!-- 1. Enlace al CSS -->
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- 2. Fuente de Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    
+    <div class="container">
+        <!-- Encabezado y Navegación -->
+        <header>
+            <h1>Kit de Ciberseguridad</h1>
+            <p>Herramientas educativas para navegar seguro</p>
+            <nav class="tool-nav">
+                <button class="nav-btn active" data-tool="analyzer">
+                    <!-- Icono (SVG en línea) -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M10.442 10.442a1 1 0 0 1 1.415 0l3.85 3.85a1 1 0 0 1-1.414 1.415l-3.85-3.85a1 1 0 0 1 0-1.415z"/>
+                        <path d="M6.5 12a5.5 5.5 0 1 0 0-11 5.5 5.5 0 0 0 0 11zM13 6.5a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0z"/>
+                    </svg>
+                    Analizador de Enlaces
+                </button>
+                <button class="nav-btn" data-tool="game">
+                    <!-- Icono (SVG en línea) -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8.5 5.5a.5.5 0 0 0-1 0v3a.5.5 0 0 0 1 0v-3z"/>
+                        <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4zm2 1a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1H2z"/>
+                    </svg>
+                    Juego de Phishing
+                </button>
+            </nav>
+        </header>
+
+        <!-- Contenedor principal de herramientas -->
+        <main>
+            <!-- 
+            ===============================
+                HERRAMIENTA 1: ANALIZADOR 
+            ===============================
+            -->
+            <section class="tool-content active" id="tool-analyzer">
+                <h2>Analizador de Anatomía de Enlaces</h2>
+                <p class="tool-description">Pega un enlace sospechoso para ver cómo te intenta engañar.</p>
+                
+                <div class="input-group">
+                    <input type="text" id="url-input" placeholder="Pega una URL aquí (ej. http://micuenta.banco.com-login.xyz)">
+                    <button id="analyze-btn">Analizar</button>
+                </div>
+
+                <div id="analysis-results" style="display: none;">
+                    <h3>Resultados del Análisis:</h3>
+                    <div class="result-card" id="result-protocol">
+                        <span class="result-label">Protocolo</span>
+                        <p class="result-value" id="protocol-value"></p>
+                        <p class="result-explanation" id="protocol-explanation"></p>
+                    </div>
+                    <div class="result-card" id="result-domain">
+                        <span class="result-label">Dominio Real (El Dueño)</span>
+                        <p class="result-value" id="domain-value"></p>
+                        <p class="result-explanation" id="domain-explanation"></p>
+                    </div>
+                    <div class="result-card" id="result-subdomain">
+                        <span class="result-label">Subdominio (El Engaño)</span>
+                        <p class="result-value" id="subdomain-value"></p>
+                        <p class="result-explanation" id="subdomain-explanation"></p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 
+            ===============================
+                HERRAMIENTA 2: JUEGO PHISHING 
+            ===============================
+            -->
+            <section class="tool-content" id="tool-game">
+                <h2>¿Es Phishing o Real?</h2>
+                <p class="tool-description">Mira la imagen y decide si es un intento de estafa o un mensaje legítimo.</p>
+
+                <div class="game-area">
+                    <div class="challenge-card">
+                        <h3 id="challenge-title">Desafío 1: Email de Netflix</h3>
+                        <img id="challenge-image" src="https://placehold.co/600x300/222/FFF?text=Cargando+imagen+del+desaf%C3%ADo..." alt="Ejemplo de email o SMS">
+                    </div>
+
+                    <div class="game-controls">
+                        <button class="game-btn real" id="btn-real">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16"><path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/></svg>
+                            Es Real
+                        </button>
+                        <button class="game-btn phishing" id="btn-phishing">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/></svg>
+                            Es Phishing
+                        </button>
+                    </div>
+
+                    <div class="feedback-card" id="feedback-card" style="display: none;">
+                        <h4 id="feedback-title"></h4>
+                        <p id="feedback-explanation"></p>
+                        <button id="btn-next">Siguiente Desafío</button>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- 3. Enlace al JavaScript (SIEMPRE al final del body) -->
+    <script src="script.js"></script>
+</body>
+</html>
+
