@@ -3,118 +3,278 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kit de Ciberseguridad</title>
-    
-    <!-- 1. Enlace al CSS -->
-    <link rel="stylesheet" href="style.css">
-    
-    <!-- 2. Fuente de Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <title>Ta-Te-Ti y Analizador</title>
+    <!-- Incluimos Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Estilos para el hover y las celdas del Ta-Te-Ti */
+        .cell {
+            width: 100px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            user-select: none; /* Evita la selección de texto */
+        }
+        
+        .cell.x {
+            color: #3B82F6; /* azul-500 */
+        }
+        .cell.o {
+            color: #EC4899; /* rosa-500 */
+        }
+
+        /* Responsive: celdas más pequeñas */
+        @media (max-width: 640px) {
+            .cell {
+                width: 80px;
+                height: 80px;
+                font-size: 2.5rem;
+            }
+        }
+
+        /* Estilo para el botón de analizar mientras carga */
+        #analyzeButton.loading {
+            cursor: not-allowed;
+            background-color: #374151; /* gray-700 */
+        }
+    </style>
 </head>
-<body>
-    
-    <div class="container">
-        <!-- Encabezado y Navegación -->
-        <header>
-            <h1>Kit de Ciberseguridad</h1>
-            <p>Herramientas educativas para navegar seguro</p>
-            <nav class="tool-nav">
-                <button class="nav-btn active" data-tool="analyzer">
-                    <!-- Icono (SVG en línea) -->
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M10.442 10.442a1 1 0 0 1 1.415 0l3.85 3.85a1 1 0 0 1-1.414 1.415l-3.85-3.85a1 1 0 0 1 0-1.415z"/>
-                        <path d="M6.5 12a5.5 5.5 0 1 0 0-11 5.5 5.5 0 0 0 0 11zM13 6.5a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0z"/>
-                    </svg>
-                    Analizador de Enlaces
-                </button>
-                <button class="nav-btn" data-tool="game">
-                    <!-- Icono (SVG en línea) -->
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M8.5 5.5a.5.5 0 0 0-1 0v3a.5.5 0 0 0 1 0v-3z"/>
-                        <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4zm2 1a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1H2z"/>
-                    </svg>
-                    Juego de Phishing
-                </button>
-            </nav>
-        </header>
+<body class="bg-gray-900 text-white font-sans flex items-center justify-center min-h-screen p-4">
 
-        <!-- Contenedor principal de herramientas -->
-        <main>
-            <!-- 
-            ===============================
-                HERRAMIENTA 1: ANALIZADOR 
-            ===============================
-            -->
-            <section class="tool-content active" id="tool-analyzer">
-                <h2>Analizador de Anatomía de Enlaces</h2>
-                <p class="tool-description">Pega un enlace sospechoso para ver cómo te intenta engañar.</p>
+    <!-- Contenedor principal para alinear las dos tarjetas -->
+    <div class="container mx-auto max-w-6xl">
+        <div class="flex flex-col lg:flex-row gap-8">
+            
+            <!-- Columna 1: Ta-Te-Ti -->
+            <div class="bg-gray-800 p-6 md:p-8 rounded-2xl shadow-2xl text-center w-full lg:w-1/2">
                 
-                <div class="input-group">
-                    <input type="text" id="url-input" placeholder="Pega una URL aquí (ej. http://micuenta.banco.com-login.xyz)">
-                    <button id="analyze-btn">Analizar</button>
+                <h1 class="text-4xl md:text-5xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-pink-500">
+                    Ta-Te-Ti
+                </h1>
+        
+                <p id="statusMessage" class="text-xl md:text-2xl mb-6 h-8">
+                    Turno de X
+                </p>
+        
+                <div id="gameBoard" class="grid grid-cols-3 gap-2 bg-gray-900 p-2 rounded-lg max-w-xs mx-auto">
+                    <!-- Celdas generadas por JS -->
+                </div>
+        
+                <button id="resetButton" class="mt-8 bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 px-8 rounded-full text-lg transition duration-300 shadow-lg focus:outline-none focus:ring-2 focus:ring-pink-400 focus:ring-opacity-75">
+                    Reiniciar Juego
+                </button>
+
+            </div>
+
+            <!-- Columna 2: Analizador de Enlaces -->
+            <div class="bg-gray-800 p-6 md:p-8 rounded-2xl shadow-2xl text-center w-full lg:w-1/2">
+                
+                <h1 class="text-4xl md:text-5xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-blue-500">
+                    Analizador
+                </h1>
+                
+                <p class="text-lg md:text-xl mb-6 h-8">
+                    Pega una URL para analizar
+                </p>
+
+                <div class="flex flex-col sm:flex-row gap-2">
+                    <input type="text" id="urlInput" placeholder="https://ejemplo.com" class="w-full bg-gray-700 text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400">
+                    <button id="analyzeButton" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 shadow-lg whitespace-nowrap">
+                        Analizar
+                    </button>
                 </div>
 
-                <div id="analysis-results" style="display: none;">
-                    <h3>Resultados del Análisis:</h3>
-                    <div class="result-card" id="result-protocol">
-                        <span class="result-label">Protocolo</span>
-                        <p class="result-value" id="protocol-value"></p>
-                        <p class="result-explanation" id="protocol-explanation"></p>
-                    </div>
-                    <div class="result-card" id="result-domain">
-                        <span class="result-label">Dominio Real (El Dueño)</span>
-                        <p class="result-value" id="domain-value"></p>
-                        <p class="result-explanation" id="domain-explanation"></p>
-                    </div>
-                    <div class="result-card" id="result-subdomain">
-                        <span class="result-label">Subdominio (El Engaño)</span>
-                        <p class="result-value" id="subdomain-value"></p>
-                        <p class="result-explanation" id="subdomain-explanation"></p>
-                    </div>
+                <p id="analyzerStatus" class="text-lg mt-4 h-6 text-gray-400"></p>
+
+                <div id="resultsContainer" class="mt-6 text-left bg-gray-900 p-4 rounded-lg min-h-[200px] overflow-auto text-gray-300">
+                    <p>Los resultados aparecerán aquí...</p>
                 </div>
-            </section>
 
-            <!-- 
-            ===============================
-                HERRAMIENTA 2: JUEGO PHISHING 
-            ===============================
-            -->
-            <section class="tool-content" id="tool-game">
-                <h2>¿Es Phishing o Real?</h2>
-                <p class="tool-description">Mira la imagen y decide si es un intento de estafa o un mensaje legítimo.</p>
+            </div>
 
-                <div class="game-area">
-                    <div class="challenge-card">
-                        <h3 id="challenge-title">Desafío 1: Email de Netflix</h3>
-                        <img id="challenge-image" src="https://placehold.co/600x300/222/FFF?text=Cargando+imagen+del+desaf%C3%ADo..." alt="Ejemplo de email o SMS">
-                    </div>
-
-                    <div class="game-controls">
-                        <button class="game-btn real" id="btn-real">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16"><path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/></svg>
-                            Es Real
-                        </button>
-                        <button class="game-btn phishing" id="btn-phishing">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16"><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/></svg>
-                            Es Phishing
-                        </button>
-                    </div>
-
-                    <div class="feedback-card" id="feedback-card" style="display: none;">
-                        <h4 id="feedback-title"></h4>
-                        <p id="feedback-explanation"></p>
-                        <button id="btn-next">Siguiente Desafío</button>
-                    </div>
-                </div>
-            </section>
-
-        </main>
+        </div>
     </div>
 
-    <!-- 3. Enlace al JavaScript (SIEMPRE al final del body) -->
-    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- LÓGICA DEL TA-TE-TI ---
+            
+            const gameBoardElement = document.getElementById('gameBoard');
+            const statusMessage = document.getElementById('statusMessage');
+            const resetButton = document.getElementById('resetButton');
+            
+            let currentPlayer = 'X';
+            let gameActive = true;
+            let boardState = Array(9).fill(null);
+
+            const winningCombinations = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8],
+                [0, 3, 6], [1, 4, 7], [2, 5, 8],
+                [0, 4, 8], [2, 4, 6]
+            ];
+
+            function initializeGame() {
+                boardState.fill(null);
+                currentPlayer = 'X';
+                gameActive = true;
+                statusMessage.textContent = `Turno de ${currentPlayer}`;
+                gameBoardElement.innerHTML = '';
+                
+                for (let i = 0; i < 9; i++) {
+                    const cell = document.createElement('div');
+                    cell.classList.add('cell', 'bg-gray-700', 'hover:bg-gray-600', 'rounded-lg');
+                    cell.dataset.index = i;
+                    cell.addEventListener('click', handleCellClick);
+                    gameBoardElement.appendChild(cell);
+                }
+            }
+
+            function handleCellClick(event) {
+                const clickedCell = event.target;
+                const cellIndex = parseInt(clickedCell.dataset.index);
+
+                if (boardState[cellIndex] !== null || !gameActive) {
+                    return;
+                }
+
+                updateCell(clickedCell, cellIndex);
+
+                if (checkWin()) {
+                    gameActive = false;
+                    statusMessage.textContent = `¡Ganó ${currentPlayer}!`;
+                } else if (checkDraw()) {
+                    gameActive = false;
+                    statusMessage.textContent = '¡Es un empate!';
+                } else {
+                    switchPlayer();
+                }
+            }
+
+            function updateCell(cell, index) {
+                boardState[index] = currentPlayer;
+                cell.textContent = currentPlayer;
+                cell.classList.add(currentPlayer.toLowerCase());
+                cell.classList.remove('hover:bg-gray-600'); 
+            }
+
+            function switchPlayer() {
+                currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+                statusMessage.textContent = `Turno de ${currentPlayer}`;
+            }
+
+            function checkWin() {
+                for (const combination of winningCombinations) {
+                    const [a, b, c] = combination;
+                    if (boardState[a] === currentPlayer &&
+                        boardState[b] === currentPlayer &&
+                        boardState[c] === currentPlayer) {
+                        highlightWinningCells(combination);
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+            function checkDraw() {
+                return !boardState.includes(null);
+            }
+
+            function highlightWinningCells(combination) {
+                for (const index of combination) {
+                    const cell = gameBoardElement.querySelector(`[data-index='${index}']`);
+                    if (cell) {
+                        cell.classList.add(currentPlayer === 'X' ? 'bg-blue-600' : 'bg-pink-600');
+                        cell.classList.remove('bg-gray-700');
+                    }
+                }
+            }
+            
+            resetButton.addEventListener('click', initializeGame);
+            initializeGame(); // Iniciar el Ta-Te-Ti
+
+
+            // --- LÓGICA DEL ANALIZADOR DE ENLACES ---
+
+            const urlInput = document.getElementById('urlInput');
+            const analyzeButton = document.getElementById('analyzeButton');
+            const analyzerStatus = document.getElementById('analyzerStatus');
+            const resultsContainer = document.getElementById('resultsContainer');
+
+            analyzeButton.addEventListener('click', handleAnalyzeClick);
+
+            async function handleAnalyzeClick() {
+                const url = urlInput.value.trim();
+                
+                // Validación simple de URL
+                if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                    analyzerStatus.textContent = 'Por favor, introduce una URL válida (http:// o https://)';
+                    analyzerStatus.classList.add('text-red-400');
+                    return;
+                }
+
+                // Deshabilitar botón y mostrar carga
+                analyzerStatus.textContent = 'Analizando...';
+                analyzerStatus.classList.remove('text-red-400', 'text-green-400');
+                analyzeButton.disabled = true;
+                analyzeButton.classList.add('loading');
+
+                // Usamos un proxy CORS (allorigins.win) para evitar problemas de seguridad del navegador
+                const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+
+                try {
+                    const response = await fetch(proxyUrl);
+                    
+                    if (!response.ok) {
+                        throw new Error(`Error al obtener la URL. Estado: ${response.status}`);
+                    }
+
+                    const html = await response.text();
+                    
+                    // Usamos DOMParser para analizar el HTML obtenido
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+
+                    // Realizamos el análisis
+                    const title = doc.querySelector('title')?.textContent || 'Sin título';
+                    const links = doc.querySelectorAll('a');
+                    const images = doc.querySelectorAll('img');
+                    const scripts = doc.querySelectorAll('script');
+                    const styles = doc.querySelectorAll('link[rel="stylesheet"]');
+
+                    // Mostramos los resultados
+                    resultsContainer.innerHTML = `
+                        <h3 class="text-xl font-bold mb-3 text-white">Resultados para:</h3>
+                        <p class="text-blue-300 truncate mb-4">${url}</p>
+                        <ul class="space-y-2">
+                            <li><strong>Título:</strong> ${title}</li>
+                            <li><strong>Enlaces (links):</strong> ${links.length}</li>
+                            <li><strong>Imágenes (img):</strong> ${images.length}</li>
+                            <li><strong>Scripts (script):</strong> ${scripts.length}</li>
+                            <li><strong>Hojas de estilo (link):</strong> ${styles.length}</li>
+                        </ul>
+                    `;
+                    analyzerStatus.textContent = 'Análisis completado.';
+                    analyzerStatus.classList.add('text-green-400');
+
+                } catch (error) {
+                    console.error('Error en el analizador:', error);
+                    analyzerStatus.textContent = 'Error al analizar la URL.';
+                    analyzerStatus.classList.add('text-red-400');
+                    resultsContainer.innerHTML = `<p>No se pudo obtener el contenido. Es posible que el sitio esté bloqueado o la URL sea incorrecta.</p>`;
+                } finally {
+                    // Volver a habilitar el botón
+                    analyzeButton.disabled = false;
+                    analyzeButton.classList.remove('loading');
+                }
+            }
+        });
+    </script>
 </body>
 </html>
 
