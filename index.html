@@ -72,7 +72,7 @@
                 </h1>
 
                 <!-- NUEVO: Selector de Modo de Juego -->
-                <div class="mb-6">
+                <div class="mb-4">
                     <h3 class="text-xl font-semibold mb-3 text-gray-300">Modo de Juego</h3>
                     <div class="flex justify-center gap-4">
                         <button id="modePVP" class="mode-btn active text-white font-bold py-2 px-6 rounded-lg">
@@ -82,6 +82,16 @@
                             Jugador vs CPU
                         </button>
                     </div>
+                </div>
+
+                <!-- NUEVO: Selector de Dificultad (oculto por defecto) -->
+                <div id="difficultySelector" class="mb-6 hidden">
+                    <h3 class="text-xl font-semibold mb-3 text-gray-300">Dificultad de la CPU</h3>
+                    <select id="aiDifficulty" class="w-full bg-gray-700 text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="easy">Fácil (Juega al azar)</option>
+                        <option value="medium" selected>Medio (A veces falla)</option>
+                        <option value="hard">Difícil (Casi imbatible)</option>
+                    </select>
                 </div>
         
                 <p id="statusMessage" class="text-xl md:text-2xl mb-6 h-8">
@@ -144,6 +154,26 @@
                     <p>Los resultados aparecerán aquí...</p>
                 </div>
 
+                <!-- NUEVO: Verificador de Brechas -->
+                <div class="mt-6 bg-gray-900 p-4 rounded-lg border border-red-500/50">
+                    <h4 class="text-lg font-bold text-red-300 mb-2">Verificador de Brechas de Seguridad</h4>
+                    <p class="text-sm text-gray-300 mb-3">
+                        <strong>¡Nunca escribas tus contraseñas personales aquí!</strong> Para verificar de forma segura si tu email o contraseñas han sido expuestos en brechas de datos, usa estos servicios de confianza:
+                    </p>
+                    <ul class="list-disc list-inside text-sm space-y-2">
+                        <li>
+                            <a href="https://haveibeenpwned.com/" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:text-blue-300 underline">
+                                Verificar mi Email (Have I Been Pwned)
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://haveibeenpwned.com/Passwords" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:text-blue-300 underline">
+                                Verificar una Contraseña (Have I Been Pwned)
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
             </div>
 
         </div>
@@ -163,6 +193,9 @@
             const scoreDrawElement = document.getElementById('scoreDraw');
             const modePVPButton = document.getElementById('modePVP');
             const modePVCButton = document.getElementById('modePVC');
+            // NUEVO: Selectores de dificultad
+            const difficultySelector = document.getElementById('difficultySelector');
+            const aiDifficultySelect = document.getElementById('aiDifficulty');
 
             let currentPlayer = 'X'; // X es el humano, O puede ser humano o CPU
             let gameActive = true;
@@ -182,9 +215,11 @@
                 if (newMode === 'pvp') {
                     modePVPButton.classList.add('active');
                     modePVCButton.classList.remove('active');
+                    difficultySelector.classList.add('hidden'); // Ocultar dificultad
                 } else {
                     modePVCButton.classList.add('active');
                     modePVPButton.classList.remove('active');
+                    difficultySelector.classList.remove('hidden'); // Mostrar dificultad
                 }
                 handleResetScore(); // Reinicia todo al cambiar de modo
             }
@@ -304,14 +339,33 @@
             function cpuMove() {
                 if (!gameActive) return;
 
-                const bestMove = findBestMove();
-                if (bestMove !== -1) {
-                    const cell = gameBoardElement.querySelector(`[data-index='${bestMove}']`);
-                    makeMove(cell, bestMove);
+                // NUEVO: Lógica de dificultad
+                const difficulty = aiDifficultySelect.value;
+                let move = -1;
+
+                if (difficulty === 'easy') {
+                    // Fácil: Juega 100% al azar
+                    move = findRandomMove();
+                } else if (difficulty === 'medium') {
+                    // Medio: 70% de probabilidad de jugar bien, 30% al azar
+                    if (Math.random() < 0.7) {
+                        move = findSmartMove();
+                    } else {
+                        move = findRandomMove();
+                    }
+                } else { // 'hard'
+                    // Difícil: Juega 100% bien
+                    move = findSmartMove();
+                }
+                
+                if (move !== -1) {
+                    const cell = gameBoardElement.querySelector(`[data-index='${move}']`);
+                    makeMove(cell, move);
                 }
             }
 
-            function findBestMove() {
+            // NUEVO: Renombrado de 'findBestMove' a 'findSmartMove'
+            function findSmartMove() {
                 // 1. Intentar ganar
                 for (let i = 0; i < 9; i++) {
                     if (boardState[i] === null) {
@@ -360,6 +414,13 @@
                 }
                 
                 return boardState.indexOf(null); // Tomar lo que quede
+            }
+
+            // NUEVO: Función para movimiento fácil
+            function findRandomMove() {
+                const emptyCells = boardState.map((val, idx) => val === null ? idx : null).filter(val => val !== null);
+                if (emptyCells.length === 0) return -1;
+                return emptyCells[Math.floor(Math.random() * emptyCells.length)];
             }
 
             // Función de ayuda para la IA para simular victorias
@@ -513,4 +574,5 @@
     </script>
 </body>
 </html>
+
 
