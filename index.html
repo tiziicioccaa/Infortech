@@ -438,141 +438,239 @@
             resetScoreButton.addEventListener('click', handleResetScore);
             initializeGame(); // Iniciar el Ta-Te-Ti
 
+// --- LÓGICA DEL ANALIZADOR DE ENLACES (PARTE 1 de 3) ---
+// (Pega esta parte primero)
 
-            // --- LÓGICA DEL ANALIZADOR DE ENLACES ---
+const urlInput = document.getElementById('urlInput');
+const analyzeButton = document.getElementById('analyzeButton');
+const analyzerStatus = document.getElementById('analyzerStatus');
+const resultsContainer = document.getElementById('resultsContainer');
 
-            const urlInput = document.getElementById('urlInput');
-            const analyzeButton = document.getElementById('analyzeButton');
-            const analyzerStatus = document.getElementById('analyzerStatus');
-            const resultsContainer = document.getElementById('resultsContainer');
+analyzeButton.addEventListener('click', handleAnalyzeClick);
 
-            analyzeButton.addEventListener('click', handleAnalyzeClick);
+/**
+ * Función principal que se activa al hacer clic en "Analizar".
+ * Llama a las dos funciones de análisis (VirusTotal y HTML) en paralelo
+ * y muestra sus resultados cuando ambas terminan.
+ */
+async function handleAnalyzeClick() {
+    let url = urlInput.value.trim();
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        url = 'https://' + url;
+        urlInput.value = url;
+    }
 
-            async function handleAnalyzeClick() {
-                let url = urlInput.value.trim();
-                
-                if (!url.startsWith('http://') && !url.startsWith('https://')) {
-                    url = 'https://' + url;
-                    urlInput.value = url;
-                }
+    // Actualizar estado de la UI a "cargando"
+    analyzerStatus.textContent = 'Analizando... (Llamando a VirusTotal y al sitio web)';
+    analyzerStatus.classList.remove('text-red-400', 'text-green-400');
+    analyzeButton.disabled = true;
+    analyzeButton.classList.add('loading');
+    resultsContainer.innerHTML = ''; // Limpiar resultados anteriores
 
-                analyzerStatus.textContent = 'Analizando...';
-                analyzerStatus.classList.remove('text-red-400', 'text-green-400');
-                analyzeButton.disabled = true;
-                analyzeButton.classList.add('loading');
+    // Ejecutar ambas promesas (análisis) en paralelo
+    // Promise.allSettled espera a que AMBAS terminen, incluso si una falla
+    const [vtResult, htmlResult] = await Promise.allSettled([
+        callVirusTotalAPI(url),
+        analyzeHtmlContent(url)
+    ]);
 
-                const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+    // Procesar y mostrar resultados
+    let finalHtml = '';
 
-                try {
-                    const response = await fetch(proxyUrl);
-                    if (!response.ok) throw new Error(`Error al obtener la URL. Estado: ${response.status}`);
+    // 1. Añadir resultado de VirusTotal
+    if (vtResult.status === 'fulfilled') {
+        finalHtml += vtResult.value; // Añadir HTML de VirusTotal
+    } else {
+        // Si falló, mostrar el error
+        console.error('Error en VirusTotal:', vtResult.reason);
+        finalHtml += `<div class="analysis-section-vt-error bg-gray-800 p-4 rounded-lg border border-red-500/50">
+                        <h3 class="text-xl font-bold mb-3 text-red-300">Análisis de Seguridad (VirusTotal)</h3>
+                        <p>Error al contactar el backend: ${vtResult.reason.message}</p>
+                     </div>`;
+    }
 
-                    const html = await response.text();
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(html, 'text/html');
+    // 2. Añadir resultado del Análisis HTML (con un espacio)
+    if (htmlResult.status === 'fulfilled') {
+        finalHtml += '<div class="mt-4"></div>'; // Espaciador
+        finalHtml += htmlResult.value; // Añadir HTML del análisis local
+    } else {
+        // Si falló, mostrar el error
+        console.error('Error en Análisis HTML:', htmlResult.reason);
+        finalHtml += `<div class="analysis-section-html-error bg-gray-800 p-4 rounded-lg mt-4 border border-red-500/50">
+                        <h3 class="text-xl font-bold mb-3 text-red-300">Análisis de Contenido HTML</h3>
+                        <p>Error al analizar el HTML: ${htmlResult.reason.message}</p>
+                     </div>`;
+    }
 
-                    // --- Extracción de datos mejorada ---
-                    const title = doc.querySelector('title')?.textContent.trim() || 'Sin título';
-                    const h1 = doc.querySelector('h1')?.textContent.trim() || 'No se encontró H1';
-                    const description = doc.querySelector('meta[name="description"]')?.getAttribute('content')?.trim() || 'Sin meta descripción';
-                    
-                    const scripts = doc.querySelectorAll('script');
-                    const styles = doc.querySelectorAll('link[rel="stylesheet"]');
+    // Mostrar todo en el contenedor
+    resultsContainer.innerHTML = finalHtml;
+    analyzerStatus.textContent = 'Análisis completado.';
+    analyzerStatus.classList.add('text-green-400');
+    
+    // Reactivar el botón
+    analyzeButton.disabled = false;
+    analyzeButton.classList.remove('loading');
+}
+// --- LÓGICA DEL ANALIZADOR DE ENLACES (PARTE 2 de 3) ---
+// (Pega esta parte después de la PARTE 1)
 
-                    // Extraer enlaces
-                    const linkHrefs = Array.from(doc.querySelectorAll('a'))
-                        .map(a => a.getAttribute('href'))
-                        .filter(href => href && !href.startsWith('#') && href.trim() !== '')
-                        .filter((href, index, self) => self.indexOf(href) === index)
-                        .slice(0, 10);
+/**
+ * Esta es tu función original.
+ * Analiza el contenido HTML de la URL usando un proxy (allorigins.win)
+ * y extrae H1, Título, Imágenes, etc.
+ * Devuelve un string de HTML con los resultados.
+ */
+async function analyzeHtmlContent(url) {
+    // Usamos el proxy para evitar problemas de CORS
+    const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+    
+    const response = await fetch(proxyUrl);
+    if (!response.ok) throw new Error(`Error al obtener la URL (proxy). Estado: ${response.status}`);
 
-                    // NUEVO: Extraer análisis de imágenes
-                    const images = Array.from(doc.querySelectorAll('img')).slice(0, 10);
-                    let imagesHTML = images.map(img => {
-                        const src = img.getAttribute('src');
-                        const alt = img.getAttribute('alt');
-                        let altStatus = '';
+    const html = await response.text();
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
 
-                        // Resolver URL relativa
-                        let absoluteSrc = src;
-                        try {
-                            absoluteSrc = new URL(src, url).href;
-                        } catch (e) {
-                            // Dejar el src original si falla la resolución
-                        }
+    // Extracción de datos
+    const title = doc.querySelector('title')?.textContent.trim() || 'Sin título';
+    const h1 = doc.querySelector('h1')?.textContent.trim() || 'No se encontró H1';
+    const description = doc.querySelector('meta[name="description"]')?.getAttribute('content')?.trim() || 'Sin meta descripción';
+    const scripts = doc.querySelectorAll('script');
+    const styles = doc.querySelectorAll('link[rel="stylesheet"]');
+    const linkHrefs = Array.from(doc.querySelectorAll('a'))
+        .map(a => a.getAttribute('href'))
+        .filter(href => href && !href.startsWith('#') && href.trim() !== '')
+        .filter((href, index, self) => self.indexOf(href) === index) // Quitar duplicados
+        .slice(0, 10); // Limitar a 10
 
-                        if (alt === null || alt.trim() === '') {
-                            altStatus = '<span class="alt-missing">ALT FALTANTE</span>';
-                        } else {
-                            altStatus = `<span class="alt-present">Alt: "${alt}"</span>`;
-                        }
-                        return `<li class="border-b border-gray-700 py-2">
-                            <p class="img-src">${absoluteSrc}</p>
-                            <p>${altStatus}</p>
-                        </li>`;
-                    }).join('');
-                    if (images.length === 0) imagesHTML = '<li>No se encontraron imágenes.</li>';
+    // Análisis de Imágenes
+    const images = Array.from(doc.querySelectorAll('img')).slice(0, 10); // Limitar a 10
+    let imagesHTML = images.map(img => {
+        const src = img.getAttribute('src');
+        const alt = img.getAttribute('alt');
+        let altStatus = '';
+        
+        // Resolver URL relativa
+        let absoluteSrc = src;
+        try { 
+            if (src) absoluteSrc = new URL(src, url).href;
+        } catch (e) {
+            // Dejar el src original si falla la resolución
+        }
 
+        if (alt === null || alt.trim() === '') {
+            altStatus = '<span class="alt-missing">ALT FALTANTE</span>';
+        } else {
+            altStatus = `<span class="alt-present">Alt: "${alt}"</span>`;
+        }
+        return `<li class="border-b border-gray-700 py-2"><p class="img-src">${absoluteSrc}</p><p>${altStatus}</p></li>`;
+    }).join('');
+    if (images.length === 0) imagesHTML = '<li>No se encontraron imágenes.</li>';
 
-                    // --- Mostrar resultados ---
-                    let resultsHTML = `
-                        <h3 class="text-xl font-bold mb-3 text-white">Resultados para:</h3>
-                        <p class="text-blue-300 truncate mb-4">${url}</p>
-                        
-                        <div class="space-y-4">
-                            <div>
-                                <strong class="text-gray-100">Título (title):</strong>
-                                <p class="text-sm pl-2">${title}</p>
-                            </div>
-                            <div>
-                                <strong class="text-gray-100">Encabezado (h1):</strong>
-                                <p class="text-sm pl-2">${h1}</p>
-                            </div>
-                            <div>
-                                <strong class="text-gray-100">Descripción (meta):</strong>
-                                <p class="text-sm pl-2">${description}</p>
-                            </div>
-                            <hr class="border-gray-700 my-2">
-                            <div>
-                                <strong class="text-gray-100">Conteo de etiquetas:</strong>
-                                <ul class="list-disc list-inside pl-2 text-sm">
-                                    <li>Scripts (script): ${scripts.length}</li>
-                                    <li>Hojas de estilo (link): ${styles.length}</li>
-                                </ul>
-                            </div>
-                            <!-- NUEVO: Análisis de Imágenes -->
-                            <div>
-                                <strong class="text-gray-100">Análisis de Imágenes (primeras 10):</strong>
-                                <ul class="text-sm space-y-1 mt-2 img-analysis-list bg-gray-800 p-2 rounded-md">
-                                    ${imagesHTML}
-                                </ul>
-                            </div>
-                            <div>
-                                <strong class="text-gray-100">Primeros 10 enlaces encontrados:</strong>
-                                <ul class="list-decimal list-inside pl-2 text-sm space-y-1 mt-2">
-                                    ${linkHrefs.length > 0 ? linkHrefs.map(href => `<li class="truncate text-blue-400">${href}</li>`).join('') : '<li>No se encontraron enlaces.</li>'}
-                                </ul>
-                            </div>
-                        </div>
-                    `;
+    // Devolver solo el string HTML del resultado
+    return `
+        <div class="analysis-section-html bg-gray-800 p-4 rounded-lg border border-gray-700">
+            <h3 class="text-xl font-bold mb-3 text-white">Análisis de Contenido HTML</h3>
+            <div class="space-y-4">
+                <div><strong class="text-gray-100">Título:</strong> <p class="text-sm pl-2">${title}</p></div>
+                <div><strong class="text-gray-100">H1:</strong> <p class="text-sm pl-2">${h1}</p></div>
+                <div><strong class="text-gray-100">Descripción:</strong> <p class="text-sm pl-2">${description}</p></div>
+                <hr class="border-gray-700 my-2">
+                <div>
+                    <strong class="text-gray-100">Conteo:</strong>
+                    <ul class="list-disc list-inside pl-2 text-sm">
+                        <li>Scripts: ${scripts.length}</li>
+                        <li>Hojas de estilo: ${styles.length}</li>
+                    </ul>
+                </div>
+                <div>
+                    <strong class="text-gray-100">Análisis de Imágenes (10 primeras):</strong>
+                    <ul class="text-sm space-y-1 mt-2 img-analysis-list bg-gray-900 p-2 rounded-md">${imagesHTML}</ul>
+                </div>
+                <div>
+                    <strong class="text-gray-100">Enlaces (10 primeros):</strong>
+                    <ul class="list-decimal list-inside pl-2 text-sm space-y-1 mt-2">
+                        ${linkHrefs.length > 0 ? linkHrefs.map(href => `<li class="truncate text-blue-400">${href}</li>`).join('') : '<li>No se encontraron enlaces.</li>'}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    `;
+}
+// --- LÓGICA DEL ANALIZADOR DE ENLACES (PARTE 3 de 3) ---
+// (Pega esta parte al final, después de la PARTE 2)
 
-                    resultsContainer.innerHTML = resultsHTML;
-                    analyzerStatus.textContent = 'Análisis completado.';
-                    analyzerStatus.classList.add('text-green-400');
+/**
+ * Esta es la nueva función.
+ * Llama a tu backend de Render (infortech.onrender.com)
+ * y devuelve un string de HTML con el resultado de VirusTotal.
+ */
+async function callVirusTotalAPI(urlToAnalyze) {
+    // URL de tu backend en Render
+    const backendUrl = 'https://infortech.onrender.com/analizar';
+    
+    // Construye la URL con el query parameter
+    const apiUrl = `${backendUrl}?url=${encodeURIComponent(urlToAnalyze)}`;
 
-                } catch (error) {
-                    console.error('Error en el analizador:', error);
-                    analyzerStatus.textContent = 'Error al analizar la URL.';
-                    analyzerStatus.classList.add('text-red-400');
-                    resultsContainer.innerHTML = `<p>No se pudo obtener el contenido. Es posible que el sitio esté bloqueado, la URL sea incorrecta o requiera JS para mostrarse.</p>`;
-                } finally {
-                    analyzeButton.disabled = false;
-                    analyzeButton.classList.remove('loading');
-                }
-            }
-        });
-    </script>
+    // Manejo de tiempo de espera (timeout) de 15 segundos
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 segundos
+
+    try {
+        const response = await fetch(apiUrl, { signal: controller.signal });
+        clearTimeout(timeoutId); // Cancelar el timeout si la respuesta llega
+
+        if (!response.ok) {
+            // Si el servidor de Render responde con un error (ej. 500)
+            throw new Error(`El servidor de Render respondió con error: ${response.status}`);
+        }
+        
+        const data = await response.json();
+
+        // Construir el HTML basado en la respuesta
+        let statusHTML = '';
+        if (data.status === 'NoEncontrado') {
+            statusHTML = `
+                <p class="text-yellow-400">Estado: URL no encontrada en VirusTotal.</p>
+                <p class="text-sm text-gray-400">${data.message}</p>
+            `;
+        } else if (data.status === 'Encontrado') {
+            const stats = data.stats;
+            statusHTML = `
+                <p class="text-green-400">Estado: Reporte encontrado.</p>
+                <ul class="list-none space-y-1 text-sm mt-2">
+                    <li><strong class="text-red-400">Malignos:</strong> ${stats.malicious}</li>
+                    <li><strong class="text-yellow-400">Sospechosos:</strong> ${stats.suspicious}</li>
+                    <li><strong class="text-green-400">Inofensivos:</strong> ${stats.harmless}</li>
+                </ul>
+            `;
+        } else if (data.error) {
+             statusHTML = `<p class="text-red-500">Error: ${data.error}</p>`;
+        } else {
+             statusHTML = `<p class="text-red-500">Error: Respuesta desconocida del backend.</p>`;
+        }
+
+        // Devolver solo el string HTML del resultado
+        return `
+            <div class="analysis-section-vt bg-gray-800 p-4 rounded-lg border border-blue-500/50">
+                <h3 class="text-xl font-bold mb-3 text-white">Análisis de Seguridad (VirusTotal)</h3>
+                ${statusHTML}
+            </div>
+        `;
+
+    } catch (error) {
+        // Limpiar el timeout si hubo un error
+        clearTimeout(timeoutId);
+        if (error.name === 'AbortError') {
+            // Esto es si se activa el timeout
+            throw new Error('Tiempo de espera agotado. El servidor de Render tardó demasiado en responder.');
+        }
+        // Otro tipo de error (ej. de red)
+        throw error;
+    }
+}
+
+    });
+</script>
 </body>
 </html>
-
-
