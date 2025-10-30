@@ -614,8 +614,7 @@ async function callVirusTotalAPI(urlToAnalyze) {
 
     // Manejo de tiempo de espera (timeout) de 15 segundos
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 segundos
-
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 segundos
     try {
         const response = await fetch(apiUrl, { signal: controller.signal });
         clearTimeout(timeoutId); // Cancelar el timeout si la respuesta llega
