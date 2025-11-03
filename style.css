@@ -1,14 +1,13 @@
-/* --- 1. Configuración Global y Tema Oscuro --- */
 :root {
-    --bg-color: #121212; /* Fondo oscuro */
-    --surface-color: #1e1e1e; /* Color de las tarjetas */
-    --primary-color: #007bff; /* Azul brillante (para botones) */
-    --text-color: #e0e0e0; /* Texto principal (blanco suave) */
-    --text-muted: #888; /* Texto secundario */
+    --bg-color: #121212;
+    --surface-color: #1e1e1e;
+    --primary-color: #007bff;
+    --text-color: #e0e0e0;
+    --text-muted: #888;
     --border-color: #333;
-    --danger-color: #e53935; /* Rojo para alertas */
-    --warning-color: #fdd835; /* Amarillo para advertencias */
-    --safe-color: #43a047; /* Verde para cosas seguras */
+    --danger-color: #e53935;
+    --warning-color: #fdd835;
+    --safe-color: #43a047;
 }
 
 * {
@@ -38,7 +37,6 @@ body {
     overflow: hidden;
 }
 
-/* --- 2. Encabezado y Navegación de Pestañas --- */
 header {
     background-color: #181818;
     padding: 1.5rem 2rem;
@@ -90,20 +88,19 @@ header p {
 }
 
 .nav-btn svg {
-    margin-bottom: 2px; /* Alineación visual del icono */
+    margin-bottom: 2px;
 }
 
-/* --- 3. Contenedor Principal de Herramientas --- */
 main {
     padding: 2rem;
 }
 
 .tool-content {
-    display: none; /* Oculto por defecto */
+    display: none;
 }
 
 .tool-content.active {
-    display: block; /* Visible cuando está activo */
+    display: block;
 }
 
 .tool-description {
@@ -118,7 +115,6 @@ h2 {
     margin-bottom: 0.5rem;
 }
 
-/* --- 4. Estilos de Formulario (Común) --- */
 .input-group {
     display: flex;
     margin-bottom: 1.5rem;
@@ -151,7 +147,6 @@ h2 {
     background: #0056b3;
 }
 
-/* --- 5. HERRAMIENTA 1: Analizador de Enlaces --- */
 #analysis-results .result-card {
     background: #252525;
     padding: 1.5rem;
@@ -182,7 +177,6 @@ h2 {
     font-size: 0.9rem;
 }
 
-/* Colores de estado del analizador */
 #analysis-results .result-card.safe {
     border-left-color: var(--safe-color);
 }
@@ -193,7 +187,6 @@ h2 {
     border-left-color: var(--danger-color);
 }
 
-/* --- 6. HERRAMIENTA 2: Juego de Phishing --- */
 .challenge-card {
     border: 1px solid var(--border-color);
     border-radius: 8px;
@@ -201,7 +194,7 @@ h2 {
     margin-bottom: 1.5rem;
 }
 
-.challenge-card h3 {
+challenge-card h3 {
     padding: 1rem;
     background: #252525;
     border-bottom: 1px solid var(--border-color);
@@ -250,7 +243,6 @@ h2 {
     background-color: #c62828;
 }
 
-/* Tarjeta de Feedback (Correcto/Incorrecto) */
 .feedback-card {
     padding: 1.5rem;
     border-radius: 8px;
@@ -298,4 +290,3 @@ h2 {
 #btn-next:hover {
     background: #0056b3;
 }
-
