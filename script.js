@@ -1,31 +1,21 @@
-// Espera a que todo el HTML esté cargado
 document.addEventListener('DOMContentLoaded', () => {
-
-    // --- SECCIÓN 1: LÓGICA DE NAVEGACIÓN (PESTAÑAS) ---
     const navButtons = document.querySelectorAll('.nav-btn');
     const toolContents = document.querySelectorAll('.tool-content');
 
     navButtons.forEach(button => {
         button.addEventListener('click', () => {
-            // 1. Obtiene el ID de la herramienta a mostrar (ej. "analyzer")
             const toolId = button.dataset.tool;
-
-            // 2. Quita la clase "active" de todos los botones y contenidos
             navButtons.forEach(btn => btn.classList.remove('active'));
             toolContents.forEach(content => content.classList.remove('active'));
-
-            // 3. Añade la clase "active" solo al botón y contenido seleccionados
             button.classList.add('active');
             document.getElementById(`tool-${toolId}`).classList.add('active');
         });
     });
 
-    // --- SECCIÓN 2: HERRAMIENTA 1 - ANALIZADOR DE ENLACES ---
     const urlInput = document.getElementById('url-input');
     const analyzeBtn = document.getElementById('analyze-btn');
     const resultsContainer = document.getElementById('analysis-results');
 
-    // Elementos de resultados
     const protocolValue = document.getElementById('protocol-value');
     const protocolExplanation = document.getElementById('protocol-explanation');
     const protocolCard = document.getElementById('result-protocol');
@@ -40,18 +30,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     analyzeBtn.addEventListener('click', () => {
         let urlString = urlInput.value.trim();
-        
-        // Añade "https://" si el usuario no pone protocolo, para que el analizador funcione
+
         if (!urlString.startsWith('http://') && !urlString.startsWith('https://')) {
             urlString = 'https://' + urlString;
             urlInput.value = urlString;
         }
 
         try {
-            // 1. Usamos la API nativa del navegador para desarmar la URL
             const url = new URL(urlString);
 
-            // 2. Analiza el Protocolo (http vs https)
             protocolValue.textContent = url.protocol;
             if (url.protocol === 'https:') {
                 protocolExplanation.textContent = "¡Bien! (HTTPS) La conexión es segura y encriptada. Es un buen primer indicio.";
@@ -61,12 +48,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 protocolCard.className = 'result-card danger';
             }
 
-            // 3. Analiza el Dominio Real (El Dueño)
-            // url.hostname nos da ej: "login.google.com-support.xyz"
             const parts = url.hostname.split('.');
-            // El dominio real son las últimas 2 partes (ej. "com-support.xyz" o "google.com")
             const mainDomain = parts.slice(-2).join('.');
-            
+
             domainValue.textContent = mainDomain;
             if (mainDomain.includes('google.com') || mainDomain.includes('netflix.com') || mainDomain.includes('bancogalicia.com')) {
                 domainExplanation.textContent = "Parece ser un dominio legítimo conocido. Es probable que sea seguro.";
@@ -76,7 +60,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 domainCard.className = 'result-card warning';
             }
 
-            // 4. Analiza el Subdominio (El Engaño)
             const subdomains = parts.slice(0, -2).join('.');
             subdomainValue.textContent = subdomains || '(Ninguno)';
             if (subdomains.includes('login') || subdomains.includes('account') || subdomains.includes('google') || subdomains.includes('netflix')) {
@@ -90,32 +73,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 subdomainCard.className = 'result-card safe';
             }
 
-            // Muestra los resultados
             resultsContainer.style.display = 'block';
 
         } catch (error) {
-            // Esto pasa si el usuario pone un texto inválido
             resultsContainer.style.display = 'block';
             protocolCard.className = 'result-card danger';
             protocolValue.textContent = "URL Inválida";
             protocolExplanation.textContent = "No pude analizar lo que escribiste. Asegúrate de que sea una URL válida.";
-            
-            domainCard.style.display = 'none'; // Ocultamos las otras tarjetas
+            domainCard.style.display = 'none';
             subdomainCard.style.display = 'none';
         }
     });
 
-    // Oculta los resultados si el usuario empieza a escribir de nuevo
     urlInput.addEventListener('input', () => {
         resultsContainer.style.display = 'none';
         domainCard.style.display = 'block';
         subdomainCard.style.display = 'block';
     });
 
-
-    // --- SECCIÓN 3: HERRAMIENTA 2 - JUEGO DE PHISHING ---
-
-    // Define los desafíos del juego
     const challenges = [
         {
             title: 'Desafío 1: Email de Netflix',
@@ -138,14 +113,13 @@ document.addEventListener('DOMContentLoaded', () => {
         {
             title: '¡Juego Terminado!',
             image: 'https://placehold.co/600x300/1DB954/FFF?text=¡Felicitaciones!',
-            isPhishing: null, // Marca de fin
+            isPhishing: null,
             explanation: "Completaste todos los desafíos. ¡Ahora estás más atento a los engaños!"
         }
     ];
 
     let currentChallengeIndex = 0;
 
-    // Elementos del DOM del juego
     const challengeTitle = document.getElementById('challenge-title');
     const challengeImage = document.getElementById('challenge-image');
     const btnReal = document.getElementById('btn-real');
@@ -155,59 +129,41 @@ document.addEventListener('DOMContentLoaded', () => {
     const feedbackExplanation = document.getElementById('feedback-explanation');
     const btnNext = document.getElementById('btn-next');
 
-    // Función para cargar un desafío
     function loadChallenge(index) {
         const challenge = challenges[index];
-        
         challengeTitle.textContent = challenge.title;
         challengeImage.src = challenge.image;
 
-        // Si es el fin del juego, oculta los botones de decisión
         if (challenge.isPhishing === null) {
             btnReal.style.display = 'none';
             btnPhishing.style.display = 'none';
-            // Muestra el feedback final
-            showFeedback(true, challenge.explanation); // true solo para que se vea verde
+            showFeedback(true, challenge.explanation);
             btnNext.textContent = "Reiniciar Juego";
         } else {
-            // Estado normal
             btnReal.style.display = 'inline-flex';
             btnPhishing.style.display = 'inline-flex';
-            
-            // --- ¡NUEVO! Habilita los botones ---
             btnReal.disabled = false;
             btnPhishing.disabled = false;
-
-            feedbackCard.style.display = 'none'; // Oculta el feedback
+            feedbackCard.style.display = 'none';
             btnNext.textContent = "Siguiente Desafío";
         }
     }
 
-    // Función para manejar la respuesta del usuario
-    function handleAnswer(userGuess) { // userGuess es true (para "real") o false (para "phishing")
-        
-        // --- ¡NUEVO! Deshabilita los botones ---
+    function handleAnswer(userGuess) {
         btnReal.disabled = true;
         btnPhishing.disabled = true;
-
         const challenge = challenges[currentChallengeIndex];
-        // La respuesta correcta es true si NO es phishing
-        const correctAnswer = (challenge.isPhishing === false); 
-
+        const correctAnswer = (challenge.isPhishing === false);
         if (userGuess === correctAnswer) {
-            // Respuesta correcta
             showFeedback(true, challenge.explanation);
         } else {
-            // Respuesta incorrecta
             showFeedback(false, "¡Incorrecto! " + challenge.explanation);
         }
     }
 
-    // Función para mostrar la tarjeta de feedback
     function showFeedback(isCorrect, explanation) {
         feedbackCard.style.display = 'block';
         feedbackExplanation.textContent = explanation;
-
         if (isCorrect) {
             feedbackTitle.textContent = "¡Correcto!";
             feedbackCard.className = 'feedback-card correct';
@@ -217,26 +173,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- Listeners de los botones del juego ---
     btnReal.addEventListener('click', () => {
-        handleAnswer(true); // El usuario adivinó "Real"
+        handleAnswer(true);
     });
 
     btnPhishing.addEventListener('click', () => {
-        handleAnswer(false); // El usuario adivinó "Phishing"
+        handleAnswer(false);
     });
 
     btnNext.addEventListener('click', () => {
-        currentChallengeIndex++; // Avanza al siguiente desafío
-        
-        // Si llegamos al final, reinicia
+        currentChallengeIndex++;
         if (currentChallengeIndex >= challenges.length) {
             currentChallengeIndex = 0;
         }
-        
         loadChallenge(currentChallengeIndex);
     });
 
-    // Carga el primer desafío (índice 0) al iniciar la app
-    load
-
+    loadChallenge(currentChallengeIndex);
+});
