@@ -31,25 +31,25 @@ document.addEventListener('DOMContentLoaded', () => {
     function setGameMode(newMode) {
         gameMode = newMode;
         if (newMode === 'pvp') {
-            modePVPButton.classList.add('active');
-            modePVCButton.classList.remove('active');
-            difficultySelector.classList.add('hidden');
+            if(modePVPButton) modePVPButton.classList.add('active');
+            if(modePVCButton) modePVCButton.classList.remove('active');
+            if(difficultySelector) difficultySelector.classList.add('hidden');
         } else {
-            modePVCButton.classList.add('active');
-            modePVPButton.classList.remove('active');
-            difficultySelector.classList.remove('hidden');
+            if(modePVCButton) modePVCButton.classList.add('active');
+            if(modePVPButton) modePVPButton.classList.remove('active');
+            if(difficultySelector) difficultySelector.classList.remove('hidden');
         }
         handleResetScore();
     }
 
-    modePVPButton.addEventListener('click', () => setGameMode('pvp'));
-    modePVCButton.addEventListener('click', () => setGameMode('pvc'));
+    if(modePVPButton) modePVPButton.addEventListener('click', () => setGameMode('pvp'));
+    if(modePVCButton) modePVCButton.addEventListener('click', () => setGameMode('pvc'));
 
     // --- Marcador y Tablero ---
     function updateScoreboard() {
-        scoreXElement.textContent = score.X;
-        scoreOElement.textContent = score.O;
-        scoreDrawElement.textContent = score.draw;
+        if(scoreXElement) scoreXElement.textContent = score.X;
+        if(scoreOElement) scoreOElement.textContent = score.O;
+        if(scoreDrawElement) scoreDrawElement.textContent = score.draw;
     }
 
     function handleResetScore() {
@@ -61,15 +61,16 @@ document.addEventListener('DOMContentLoaded', () => {
         boardState.fill(null);
         currentPlayer = 'X';
         gameActive = true;
-        statusMessage.textContent = `Turno de ${currentPlayer}`;
-        gameBoardElement.innerHTML = '';
-        
-        for (let i = 0; i < 9; i++) {
-            const cell = document.createElement('div');
-            cell.classList.add('cell', 'bg-gray-700', 'hover:bg-gray-600', 'rounded-lg'); // Clases base de Tailwind
-            cell.dataset.index = i;
-            cell.addEventListener('click', handleCellClick);
-            gameBoardElement.appendChild(cell);
+        if(statusMessage) statusMessage.textContent = `Turno de ${currentPlayer}`;
+        if(gameBoardElement) {
+            gameBoardElement.innerHTML = '';
+            for (let i = 0; i < 9; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell'; // Usa la clase definida en tu CSS
+                cell.dataset.index = i;
+                cell.addEventListener('click', handleCellClick);
+                gameBoardElement.appendChild(cell);
+            }
         }
         updateScoreboard();
     }
@@ -85,41 +86,40 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Turno de la CPU si corresponde
         if (gameMode === 'pvc' && gameActive && currentPlayer === 'O') {
-            gameBoardElement.style.pointerEvents = 'none'; 
-            statusMessage.textContent = 'Pensando...';
+            if(gameBoardElement) gameBoardElement.style.pointerEvents = 'none'; 
+            if(statusMessage) statusMessage.textContent = 'Pensando...';
             setTimeout(() => {
                 cpuMove();
-                gameBoardElement.style.pointerEvents = 'auto';
+                if(gameBoardElement) gameBoardElement.style.pointerEvents = 'auto';
             }, 700);
         }
     }
 
     function makeMove(cell, index) {
-        // Doble chequeo por seguridad
-        if (!cell) cell = gameBoardElement.children[index];
+        // Seguridad por si cell es undefined (turno CPU)
+        if (!cell && gameBoardElement) cell = gameBoardElement.children[index];
         
         if (boardState[index] !== null || !gameActive) return;
         
         boardState[index] = currentPlayer;
-        cell.textContent = currentPlayer;
-        
-        // Aplicar estilos (clases definidas en tu HTML style)
-        cell.classList.add(currentPlayer.toLowerCase());
-        cell.classList.remove('hover:bg-gray-600'); 
+        if(cell) {
+            cell.textContent = currentPlayer;
+            cell.classList.add(currentPlayer.toLowerCase());
+        }
 
         if (checkWin()) {
             gameActive = false;
-            statusMessage.textContent = `¡Ganó ${currentPlayer}!`;
+            if(statusMessage) statusMessage.textContent = `¡Ganó ${currentPlayer}!`;
             score[currentPlayer]++;
             updateScoreboard();
         } else if (checkDraw()) {
             gameActive = false;
-            statusMessage.textContent = '¡Es un empate!';
+            if(statusMessage) statusMessage.textContent = '¡Es un empate!';
             score.draw++;
             updateScoreboard();
         } else {
             currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
-            statusMessage.textContent = `Turno de ${currentPlayer}`;
+            if(statusMessage) statusMessage.textContent = `Turno de ${currentPlayer}`;
         }
     }
 
@@ -127,10 +127,13 @@ document.addEventListener('DOMContentLoaded', () => {
         for (const combination of winningCombinations) {
             const [a, b, c] = combination;
             if (boardState[a] === currentPlayer && boardState[b] === currentPlayer && boardState[c] === currentPlayer) {
-                // Resaltar ganadores
-                [a,b,c].forEach(idx => {
-                   gameBoardElement.children[idx].style.backgroundColor = currentPlayer === 'X' ? '#1e3a8a' : '#831843';
-                });
+                if(gameBoardElement) {
+                    [a,b,c].forEach(idx => {
+                       const cell = gameBoardElement.children[idx];
+                       // Nota: Este color debe coincidir con el diseño oscuro/claro que uses
+                       if(cell) cell.style.backgroundColor = currentPlayer === 'X' ? '#1e3a8a' : '#831843';
+                    });
+                }
                 return true;
             }
         }
@@ -142,21 +145,21 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Inteligencia Artificial (CPU) ---
     function cpuMove() {
         if (!gameActive) return;
-        const difficulty = aiDifficultySelect.value;
+        const difficulty = aiDifficultySelect ? aiDifficultySelect.value : 'medium';
         let move = -1;
 
         if (difficulty === 'easy') move = findRandomMove();
         else if (difficulty === 'medium') move = (Math.random() < 0.7) ? findSmartMove() : findRandomMove();
-        else move = findSmartMove(); // Hard
+        else move = findSmartMove(); 
         
         if (move !== -1) {
-            const cell = gameBoardElement.children[move];
+            const cell = gameBoardElement ? gameBoardElement.children[move] : null;
             makeMove(cell, move);
         }
     }
 
     function findSmartMove() {
-        // 1. Intentar Ganar
+        // 1. Ganar
         for (let i = 0; i < 9; i++) {
             if (boardState[i] === null) {
                 boardState[i] = 'O';
@@ -164,7 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 boardState[i] = null;
             }
         }
-        // 2. Intentar Bloquear
+        // 2. Bloquear
         for (let i = 0; i < 9; i++) {
             if (boardState[i] === null) {
                 boardState[i] = 'X';
@@ -172,7 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 boardState[i] = null;
             }
         }
-        // 3. Centro o Random
+        // 3. Centro
         if (boardState[4] === null) return 4;
         return findRandomMove();
     }
@@ -190,10 +193,9 @@ document.addEventListener('DOMContentLoaded', () => {
         return false;
     }
     
-    resetRoundButton.addEventListener('click', initializeGame);
-    resetScoreButton.addEventListener('click', handleResetScore);
+    if(resetRoundButton) resetRoundButton.addEventListener('click', initializeGame);
+    if(resetScoreButton) resetScoreButton.addEventListener('click', handleResetScore);
     
-    // Iniciar juego al cargar
     initializeGame(); 
 
 
@@ -202,22 +204,25 @@ document.addEventListener('DOMContentLoaded', () => {
     // ======================================================
     const btnTabUrl = document.getElementById('btnTabUrl');
     const btnTabFile = document.getElementById('btnTabFile');
-    const tabUrlContent = document.getElementById('tabUrlContent');
-    const tabFileContent = document.getElementById('tabFileContent');
+    // Soporte para IDs de tabs o vistas, dependiendo de tu HTML
+    const tabUrlContent = document.getElementById('tabUrlContent') || document.getElementById('viewUrl');
+    const tabFileContent = document.getElementById('tabFileContent') || document.getElementById('viewFile');
 
-    btnTabUrl.addEventListener('click', () => {
-        btnTabUrl.classList.add('active');
-        btnTabFile.classList.remove('active');
-        tabUrlContent.classList.remove('hidden');
-        tabFileContent.classList.add('hidden');
-    });
+    if(btnTabUrl && btnTabFile) {
+        btnTabUrl.addEventListener('click', () => {
+            btnTabUrl.classList.add('active'); 
+            btnTabFile.classList.remove('active');
+            if(tabUrlContent) tabUrlContent.classList.remove('hidden'); 
+            if(tabFileContent) tabFileContent.classList.add('hidden');
+        });
 
-    btnTabFile.addEventListener('click', () => {
-        btnTabFile.classList.add('active');
-        btnTabUrl.classList.remove('active');
-        tabFileContent.classList.remove('hidden');
-        tabUrlContent.classList.add('hidden');
-    });
+        btnTabFile.addEventListener('click', () => {
+            btnTabFile.classList.add('active'); 
+            btnTabUrl.classList.remove('active');
+            if(tabFileContent) tabFileContent.classList.remove('hidden'); 
+            if(tabUrlContent) tabUrlContent.classList.add('hidden');
+        });
+    }
 
 
     // ======================================================
@@ -225,132 +230,168 @@ document.addEventListener('DOMContentLoaded', () => {
     // ======================================================
     const urlInput = document.getElementById('urlInput');
     const fileInput = document.getElementById('fileInput');
-    const analyzeButton = document.getElementById('analyzeButton');
-    const analyzeFileButton = document.getElementById('analyzeFileButton');
-    const analyzerStatus = document.getElementById('analyzerStatus');
-    const resultsContainer = document.getElementById('resultsContainer');
+    // Soporte para IDs variantes
+    const analyzeButton = document.getElementById('analyzeButton') || document.getElementById('analyzeUrlBtn');
+    const analyzeFileButton = document.getElementById('analyzeFileButton') || document.getElementById('analyzeFileBtn');
+    const analyzerStatus = document.getElementById('analyzerStatus') || document.getElementById('statusText');
+    const resultsContainer = document.getElementById('resultsContainer') || document.getElementById('resultsBox');
 
     // --- A. ANALIZAR URL ---
-    analyzeButton.addEventListener('click', async () => {
-        let url = urlInput.value.trim();
-        if (!url) return alert("Por favor, ingresa una URL.");
-        if (!url.startsWith('http')) { url = 'https://' + url; urlInput.value = url; }
+    if(analyzeButton) {
+        analyzeButton.addEventListener('click', async () => {
+            let url = urlInput.value.trim();
+            if (!url) return alert("Por favor, ingresa una URL.");
+            if (!url.startsWith('http')) { url = 'https://' + url; urlInput.value = url; }
 
-        analyzerStatus.textContent = 'Analizando URL... (Espera 30s si el servidor está dormido)';
-        analyzerStatus.className = 'text-lg mt-4 h-6 text-yellow-400';
-        analyzeButton.disabled = true;
-        analyzeButton.classList.add('loading');
-        resultsContainer.innerHTML = '<p class="text-center text-gray-400">Procesando...</p>';
+            if(analyzerStatus) {
+                analyzerStatus.textContent = 'Analizando URL... (Espera 30s si el servidor está dormido)';
+                analyzerStatus.style.color = '#fdd835'; // Amarillo
+            }
+            analyzeButton.disabled = true;
+            analyzeButton.classList.add('loading');
+            if(resultsContainer) resultsContainer.innerHTML = '<p style="text-align:center; color:#888;">Procesando...</p>';
 
-        // Timeout aumentado a 30s para el "cold start" de Render
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 30000); 
+            // Timeout aumentado a 30s para el "cold start" de Render
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 30000); 
 
-        try {
-            // Ejecutar ambas peticiones en paralelo (Backend + Proxy HTML)
-            const [vtResult, htmlResult] = await Promise.allSettled([
-                fetch(`https://infortech.onrender.com/analizar?url=${encodeURIComponent(url)}`, { signal: controller.signal })
-                    .then(res => { clearTimeout(timeoutId); return res.json(); }),
-                fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`)
-                    .then(res => res.text())
-            ]);
+            try {
+                // Ejecutar ambas peticiones en paralelo (Backend + Proxy HTML)
+                const [vtResult, htmlResult] = await Promise.allSettled([
+                    fetch(`https://infortech.onrender.com/analizar?url=${encodeURIComponent(url)}`, { signal: controller.signal })
+                        .then(res => { clearTimeout(timeoutId); return res.json(); }),
+                    fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`)
+                        .then(res => res.text())
+                ]);
 
-            let finalHtml = "";
-
-            // 1. Procesar Resultado VirusTotal
-            if (vtResult.status === 'fulfilled') {
-                const data = vtResult.value;
-                if (data.stats) {
-                    const isSafe = data.stats.malicious === 0 && data.stats.suspicious === 0;
-                    finalHtml += `
-                        <div class="bg-gray-800 p-4 rounded-lg border ${isSafe ? 'border-green-500' : 'border-red-500'} mb-4">
-                            <h3 class="text-xl font-bold mb-2 text-white">🛡️ Reporte de Seguridad (VirusTotal)</h3>
-                            <div class="grid grid-cols-3 gap-2 text-center">
-                                <div><p class="text-red-400 font-bold">Malignos</p><p class="text-2xl">${data.stats.malicious}</p></div>
-                                <div><p class="text-yellow-400 font-bold">Sospechosos</p><p class="text-2xl">${data.stats.suspicious}</p></div>
-                                <div><p class="text-green-400 font-bold">Seguros</p><p class="text-2xl">${data.stats.harmless}</p></div>
-                            </div>
-                        </div>`;
-                } else {
-                    finalHtml += `<p class="text-red-400 mb-4">Error VT: ${data.error || data.message || 'Desconocido'}</p>`;
+                renderResult(vtResult, htmlResult);
+            } catch (error) {
+                if(analyzerStatus) {
+                    analyzerStatus.textContent = 'Error crítico de conexión (Timeout).';
+                    analyzerStatus.style.color = 'red';
                 }
-            } else {
-                finalHtml += `<p class="text-red-400 mb-4">Error conectando al Backend: ${vtResult.reason}</p>`;
+            } finally {
+                analyzeButton.disabled = false; 
+                analyzeButton.classList.remove('loading');
             }
-
-            // 2. Procesar Resultado HTML
-            if (htmlResult.status === 'fulfilled') {
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(htmlResult.value, 'text/html');
-                const title = doc.querySelector('title')?.textContent || 'Sin título';
-                const h1 = doc.querySelector('h1')?.textContent || 'Sin H1';
-                finalHtml += `
-                    <div class="bg-gray-800 p-4 rounded-lg border border-blue-500">
-                        <h3 class="text-xl font-bold mb-2 text-white">📄 Análisis de Contenido</h3>
-                        <p><strong>Título:</strong> ${title}</p>
-                        <p><strong>Encabezado H1:</strong> ${h1}</p>
-                    </div>`;
-            }
-
-            resultsContainer.innerHTML = finalHtml;
-            analyzerStatus.textContent = 'Análisis completado.';
-            analyzerStatus.className = 'text-lg mt-4 h-6 text-green-400';
-
-        } catch (error) {
-            analyzerStatus.textContent = 'Error crítico de conexión.';
-            analyzerStatus.className = 'text-lg mt-4 h-6 text-red-400';
-        } finally {
-            analyzeButton.disabled = false;
-            analyzeButton.classList.remove('loading');
-        }
-    });
+        });
+    }
 
     // --- B. ANALIZAR ARCHIVO ---
-    analyzeFileButton.addEventListener('click', async () => {
-        if (!fileInput.files[0]) return alert("Selecciona un archivo primero.");
+    if(analyzeFileButton) {
+        analyzeFileButton.addEventListener('click', async () => {
+            if (!fileInput.files[0]) return alert("Selecciona un archivo primero.");
 
-        const formData = new FormData();
-        formData.append('file', fileInput.files[0]);
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
 
-        analyzerStatus.textContent = 'Subiendo y Analizando Archivo... (Esto toma tiempo)';
-        analyzerStatus.className = 'text-lg mt-4 h-6 text-yellow-400';
-        analyzeFileButton.disabled = true;
-        analyzeFileButton.classList.add('loading');
-        resultsContainer.innerHTML = '<p class="text-center text-gray-400">Subiendo a VirusTotal...</p>';
-
-        try {
-            const response = await fetch('https://infortech.onrender.com/analizar-archivo', {
-                method: 'POST',
-                body: formData
-            });
-            
-            const data = await response.json();
-            
-            if (data.stats) {
-                resultsContainer.innerHTML = `
-                    <div class="bg-gray-800 p-4 rounded-lg border border-green-500/50">
-                        <h3 class="text-xl font-bold mb-2 text-white">📂 Reporte de Archivo</h3>
-                        <p class="text-sm text-gray-400 mb-2">ID: ${data.meta.file_info.sha256.substring(0, 15)}...</p>
-                        <ul class="space-y-1">
-                            <li class="text-red-400">Malignos: ${data.stats.malicious}</li>
-                            <li class="text-green-400">Inofensivos: ${data.stats.harmless}</li>
-                        </ul>
-                    </div>`;
-                analyzerStatus.textContent = 'Análisis de archivo completado.';
-                analyzerStatus.className = 'text-lg mt-4 h-6 text-green-400';
-            } else {
-                throw new Error(data.error || "Error desconocido del servidor");
+            if(analyzerStatus) {
+                analyzerStatus.textContent = 'Subiendo y Analizando Archivo... (Esto toma tiempo)';
+                analyzerStatus.style.color = '#fdd835';
             }
+            analyzeFileButton.disabled = true;
+            analyzeFileButton.classList.add('loading');
+            if(resultsContainer) resultsContainer.innerHTML = '<p style="text-align:center; color:#888;">Subiendo a VirusTotal...</p>';
 
-        } catch (error) {
-            console.error(error);
-            analyzerStatus.textContent = 'Error al analizar archivo.';
-            analyzerStatus.className = 'text-lg mt-4 h-6 text-red-400';
-            resultsContainer.innerHTML = `<p class="text-red-400">Detalle: ${error.message}</p>`;
-        } finally {
-            analyzeFileButton.disabled = false;
-            analyzeFileButton.classList.remove('loading');
+            try {
+                const response = await fetch('https://infortech.onrender.com/analizar-archivo', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.stats) {
+                    // Simulamos formato Promise.allSettled para reusar renderResult
+                    renderResult({ status: 'fulfilled', value: data }, null);
+                } else {
+                    throw new Error(data.error || "Error desconocido del servidor");
+                }
+
+            } catch (error) {
+                console.error(error);
+                if(analyzerStatus) {
+                    analyzerStatus.textContent = 'Error al analizar archivo.';
+                    analyzerStatus.style.color = 'red';
+                }
+                if(resultsContainer) resultsContainer.innerHTML = `<p style="color:red;">Detalle: ${error.message}</p>`;
+            } finally {
+                analyzeFileButton.disabled = false; 
+                analyzeFileButton.classList.remove('loading');
+            }
+        });
+    }
+
+    // --- FUNCIÓN PARA MOSTRAR RESULTADOS (CON DESGLOSE DE AMENAZAS) ---
+    function renderResult(vt, html) {
+        if(analyzerStatus) {
+            analyzerStatus.textContent = 'Completado';
+            analyzerStatus.style.color = '#43a047'; // Verde
         }
-    });
+        let htmlContent = '';
+
+        // 1. Procesar Resultado VirusTotal
+        if (vt && vt.status === 'fulfilled') {
+            const data = vt.value;
+            if (data.stats) {
+                const isSafe = data.stats.malicious === 0 && data.stats.suspicious === 0;
+                
+                // --- DESGLOSE DE AMENAZAS (NUEVO) ---
+                let detectionsHtml = '';
+                if (data.results) {
+                    // Filtramos solo los motores que detectaron algo malo
+                    const threats = Object.values(data.results).filter(r => r.category === 'malicious' || r.category === 'suspicious');
+                    
+                    if (threats.length > 0) {
+                        detectionsHtml = `
+                        <div style="margin-top: 1rem; padding-top: 0.5rem; border-top: 1px solid #444;">
+                            <h4 style="font-weight:bold; color:white; margin-bottom:0.5rem;">Detalles de Amenazas:</h4>
+                            <ul style="font-size: 0.85rem; max-height: 150px; overflow-y: auto; background: #000; padding: 0.5rem; border-radius: 4px; list-style:none;">
+                                ${threats.map(t => `
+                                    <li style="margin-bottom: 4px;">
+                                        <span style="color: #ef4444; font-weight: bold;">${t.engine_name}:</span> 
+                                        <span style="color: #d1d5db;">${t.result}</span>
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </div>`;
+                    } else {
+                         detectionsHtml = `<div style="margin-top: 1rem; padding-top: 0.5rem; border-top: 1px solid #444;"><p style="color:#43a047; font-size: 0.9rem;">Ningún motor detectó amenazas específicas.</p></div>`;
+                    }
+                }
+
+                htmlContent += `
+                <div style="background: #1e1e1e; padding: 1rem; border-radius: 0.5rem; border: 1px solid ${isSafe ? '#43a047' : '#e53935'}; margin-bottom: 1rem;">
+                    <h3 style="font-size: 1.25rem; font-weight: bold; margin-bottom: 0.5rem; color: white;">🛡️ Reporte de Seguridad</h3>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; text-align: center;">
+                        <div><p style="color: #ef4444; font-weight: bold;">Malignos</p><p style="font-size: 1.5rem; color:white;">${data.stats.malicious}</p></div>
+                        <div><p style="color: #fdd835; font-weight: bold;">Sospechosos</p><p style="font-size: 1.5rem; color:white;">${data.stats.suspicious}</p></div>
+                        <div><p style="color: #43a047; font-weight: bold;">Seguros</p><p style="font-size: 1.5rem; color:white;">${data.stats.harmless}</p></div>
+                    </div>
+                    ${detectionsHtml}
+                </div>`;
+            } else {
+                htmlContent += `<p style="color: #ef4444;">Error VT: ${data.error || data.message || 'Desconocido'}</p>`;
+            }
+        } else if (vt) {
+            htmlContent += `<p style="color: #ef4444;">Error conectando al Backend: ${vt.reason}</p>`;
+        }
+
+        // 2. Procesar Resultado HTML (Solo si existe)
+        if (html && html.status === 'fulfilled') {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html.value, 'text/html');
+            const title = doc.querySelector('title')?.textContent || 'Sin título';
+            const h1 = doc.querySelector('h1')?.textContent || 'Sin H1';
+            htmlContent += `
+                <div style="background: #1e1e1e; padding: 1rem; border-radius: 0.5rem; border: 1px solid #3b82f6;">
+                    <h3 style="font-size: 1.25rem; font-weight: bold; margin-bottom: 0.5rem; color: white;">📄 Análisis de Contenido</h3>
+                    <p style="color: #d1d5db;"><strong>Título:</strong> ${title}</p>
+                    <p style="color: #d1d5db;"><strong>Encabezado H1:</strong> ${h1}</p>
+                </div>`;
+        }
+
+        if(resultsContainer) resultsContainer.innerHTML = htmlContent || '<p style="text-align:center; color:#888;">No hay resultados.</p>';
+    }
 
 });
