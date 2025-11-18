@@ -19,17 +19,17 @@
             user-select: none;
         }
         
-        .cell.x { color: #3B82F6; }
-        .cell.o { color: #EC4899; }
+        .cell.x { color: #3B82F6; /* azul-500 */ }
+        .cell.o { color: #EC4899; /* rosa-500 */ }
 
         @media (max-width: 640px) {
             .cell { width: 80px; height: 80px; font-size: 2.5rem; }
         }
 
-        #analyzeButton.loading { cursor: not-allowed; background-color: #374151; }
+        #analyzeButton.loading { cursor: not-allowed; background-color: #374151; /* gray-700 */ }
 
         .score-box {
-            background-color: #1F2937;
+            background-color: #1F2937; /* gray-800 */
             padding: 0.75rem 1.25rem;
             border-radius: 0.75rem;
             font-size: 1.25rem;
@@ -37,20 +37,20 @@
         }
 
         .mode-btn {
-            background-color: #374151;
-            border: 2px solid #4B5563;
+            background-color: #374151; /* gray-700 */
+            border: 2px solid #4B5563; /* gray-600 */
             transition: all 0.3s;
         }
         .mode-btn.active {
-            background-color: #2563EB;
-            border-color: #3B82F6;
+            background-color: #2563EB; /* blue-600 */
+            border-color: #3B82F6; /* blue-500 */
             box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
         }
 
         .img-analysis-list { max-height: 250px; overflow-y: auto; }
-        .img-src { word-break: break-all; color: #9CA3AF; font-size: 0.8rem; }
-        .alt-present { color: #10B981; }
-        .alt-missing { color: #F87171; font-weight: bold; }
+        .img-src { word-break: break-all; color: #9CA3AF; /* gray-400 */ font-size: 0.8rem; }
+        .alt-present { color: #10B981; /* green-500 */ }
+        .alt-missing { color: #F87171; /* red-400 */ font-weight: bold; }
 
     </style>
 </head>
@@ -105,6 +105,7 @@
                     </div>
                 </div>
         
+                <!-- Botones de control -->
                 <div class="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
                     <button id="resetRoundButton" class="bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 px-8 rounded-full text-lg transition duration-300 shadow-lg">
                         Reiniciar Ronda
@@ -127,7 +128,7 @@
                 </p>
 
                 <div class="flex flex-col sm:flex-row gap-2">
-                    <input type="text" id="urlInput" placeholder="https://ejemplo.com" class="w-full bg-gray-700 text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="text" id="urlInput" placeholder="https://ejemplo.com" class="w-full bg-gray-700 text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400">
                     <button id="analyzeButton" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 shadow-lg whitespace-nowrap">
                         Analizar
                     </button>
@@ -139,10 +140,11 @@
                     <p>Los resultados aparecerán aquí...</p>
                 </div>
 
+                <--Verificador de Brechas -->
                 <div class="mt-6 bg-gray-900 p-4 rounded-lg border border-red-500/50">
                     <h4 class="text-lg font-bold text-red-300 mb-2">Verificador de Brechas de Seguridad</h4>
                     <p class="text-sm text-gray-300 mb-3">
-                        <strong>¡No escribas tus contraseñas aqui!</strong> Para verificar de forma segura si tu email o contraseñas han sido expuestos en brechas de datos, usa estos servicios de Have I Been Pwned)
+                        <strong>¡No escribas tus contraseñas aqui!</strong> Para verificar de forma segura si tu email o contraseñas han sido expuestos en brechas de datos, usa estos servicios de confianza:
                     </p>
                     <ul class="list-disc list-inside text-sm space-y-2">
                         <li>
@@ -166,6 +168,8 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             
+            // --- LÓGICA DEL TA-TE-TI ---
+            
             const gameBoardElement = document.getElementById('gameBoard');
             const statusMessage = document.getElementById('statusMessage');
             const resetRoundButton = document.getElementById('resetRoundButton');
@@ -175,14 +179,15 @@
             const scoreDrawElement = document.getElementById('scoreDraw');
             const modePVPButton = document.getElementById('modePVP');
             const modePVCButton = document.getElementById('modePVC');
+            // NUEVO: Selectores de dificultad
             const difficultySelector = document.getElementById('difficultySelector');
             const aiDifficultySelect = document.getElementById('aiDifficulty');
 
-            let currentPlayer = 'X';
+            let currentPlayer = 'X'; // X es el humano, O puede ser humano o CPU
             let gameActive = true;
             let boardState = Array(9).fill(null);
             let score = { X: 0, O: 0, draw: 0 };
-            let gameMode = 'pvp';
+            let gameMode = 'pvp'; // 'pvp' (Player vs Player) o 'pvc' (Player vs CPU)
 
             const winningCombinations = [
                 [0, 1, 2], [3, 4, 5], [6, 7, 8],
@@ -190,23 +195,25 @@
                 [0, 4, 8], [2, 4, 6]
             ];
 
+            // --- Funciones de Modo de Juego ---
             function setGameMode(newMode) {
                 gameMode = newMode;
                 if (newMode === 'pvp') {
                     modePVPButton.classList.add('active');
                     modePVCButton.classList.remove('active');
-                    difficultySelector.classList.add('hidden');
+                    difficultySelector.classList.add('hidden'); // Ocultar dificultad
                 } else {
                     modePVCButton.classList.add('active');
                     modePVPButton.classList.remove('active');
-                    difficultySelector.classList.remove('hidden');
+                    difficultySelector.classList.remove('hidden'); // Mostrar dificultad
                 }
-                handleResetScore();
+                handleResetScore(); // Reinicia todo al cambiar de modo
             }
 
             modePVPButton.addEventListener('click', () => setGameMode('pvp'));
             modePVCButton.addEventListener('click', () => setGameMode('pvc'));
 
+            // --- Funciones de Marcador y Juego ---
             function updateScoreboard() {
                 scoreXElement.textContent = score.X;
                 scoreOElement.textContent = score.O;
@@ -245,14 +252,16 @@
 
                 if (boardState[cellIndex] !== null) return;
 
+                // Turno del Jugador (siempre X o O en pvp)
                 makeMove(clickedCell, cellIndex);
 
+                // Si es modo PVC y el juego no ha terminado, juega la CPU
                 if (gameMode === 'pvc' && gameActive && currentPlayer === 'O') {
-                    gameBoardElement.style.pointerEvents = 'none';
+                    gameBoardElement.style.pointerEvents = 'none'; // Bloquear tablero mientras piensa la CPU
                     statusMessage.textContent = 'Pensando...';
                     setTimeout(() => {
                         cpuMove();
-                        gameBoardElement.style.pointerEvents = 'auto';
+                        gameBoardElement.style.pointerEvents = 'auto'; // Desbloquear
                     }, 700);
                 }
             }
@@ -312,21 +321,26 @@
                 }
             }
 
+            // --- Lógica de la CPU ---
             function cpuMove() {
                 if (!gameActive) return;
 
+                // NUEVO: Lógica de dificultad
                 const difficulty = aiDifficultySelect.value;
                 let move = -1;
 
                 if (difficulty === 'easy') {
+                    // Fácil: Juega 100% al azar
                     move = findRandomMove();
                 } else if (difficulty === 'medium') {
+                    // Medio: 70% de probabilidad de jugar bien, 30% al azar
                     if (Math.random() < 0.7) {
                         move = findSmartMove();
                     } else {
                         move = findRandomMove();
                     }
-                } else {
+                } else { // 'hard'
+                    // Difícil: Juega 100% bien
                     move = findSmartMove();
                 }
                 
@@ -336,57 +350,66 @@
                 }
             }
 
+            // NUEVO: Renombrado de 'findBestMove' a 'findSmartMove'
             function findSmartMove() {
+                // 1. Intentar ganar
                 for (let i = 0; i < 9; i++) {
                     if (boardState[i] === null) {
-                        boardState[i] = 'O';
+                        boardState[i] = 'O'; // Probar movimiento
                         if (checkWinCPU('O')) {
-                            boardState[i] = null;
-                            return i;
+                            boardState[i] = null; // Deshacer
+                            return i; // Ganar
                         }
-                        boardState[i] = null;
+                        boardState[i] = null; // Deshacer
                     }
                 }
 
+                // 2. Intentar bloquear
                 for (let i = 0; i < 9; i++) {
                     if (boardState[i] === null) {
-                        boardState[i] = 'X';
+                        boardState[i] = 'X'; // Probar si el jugador ganaría aquí
                         if (checkWinCPU('X')) {
-                            boardState[i] = null;
-                            return i;
+                            boardState[i] = null; // Deshacer
+                            return i; // Bloquear
                         }
-                        boardState[i] = null;
+                        boardState[i] = null; // Deshacer
                     }
                 }
 
+                // 3. Tomar el centro
                 if (boardState[4] === null) return 4;
 
+                // 4. Tomar una esquina opuesta (simple)
                 if (boardState[0] === 'X' && boardState[8] === null) return 8;
                 if (boardState[8] === 'X' && boardState[0] === null) return 0;
                 if (boardState[2] === 'X' && boardState[6] === null) return 6;
                 if (boardState[6] === 'X' && boardState[2] === null) return 2;
 
+                // 5. Tomar cualquier esquina vacía
                 const corners = [0, 2, 6, 8];
                 const emptyCorners = corners.filter(i => boardState[i] === null);
                 if (emptyCorners.length > 0) {
                     return emptyCorners[Math.floor(Math.random() * emptyCorners.length)];
                 }
 
+                // 6. Tomar cualquier lado vacío
                 const sides = [1, 3, 5, 7];
                 const emptySides = sides.filter(i => boardState[i] === null);
                 if (emptySides.length > 0) {
                     return emptySides[Math.floor(Math.random() * emptySides.length)];
                 }
                 
-                return boardState.indexOf(null);
+                return boardState.indexOf(null); // Tomar lo que quede
             }
 
+            // NUEVO: Función para movimiento fácil
             function findRandomMove() {
                 const emptyCells = boardState.map((val, idx) => val === null ? idx : null).filter(val => val !== null);
                 if (emptyCells.length === 0) return -1;
                 return emptyCells[Math.floor(Math.random() * emptyCells.length)];
             }
 
+            // Función de ayuda para la IA para simular victorias
             function checkWinCPU(player) {
                 for (const combination of winningCombinations) {
                     const [a, b, c] = combination;
@@ -399,7 +422,10 @@
             
             resetRoundButton.addEventListener('click', initializeGame);
             resetScoreButton.addEventListener('click', handleResetScore);
-            initializeGame();
+            initializeGame(); // Iniciar el Ta-Te-Ti
+
+// --- LÓGICA DEL ANALIZADOR DE ENLACES (PARTE 1 de 3) ---
+// (Pega esta parte primero)
 
 const urlInput = document.getElementById('urlInput');
 const analyzeButton = document.getElementById('analyzeButton');
@@ -408,6 +434,11 @@ const resultsContainer = document.getElementById('resultsContainer');
 
 analyzeButton.addEventListener('click', handleAnalyzeClick);
 
+/**
+ * Función principal que se activa al hacer clic en "Analizar".
+ * Llama a las dos funciones de análisis (VirusTotal y HTML) en paralelo
+ * y muestra sus resultados cuando ambas terminan.
+ */
 async function handleAnalyzeClick() {
     let url = urlInput.value.trim();
     if (!url.startsWith('http://') && !url.startsWith('https://')) {
@@ -415,22 +446,28 @@ async function handleAnalyzeClick() {
         urlInput.value = url;
     }
 
+    // Actualizar estado de la UI a "cargando"
     analyzerStatus.textContent = 'Analizando... (Llamando a VirusTotal y al sitio web)';
     analyzerStatus.classList.remove('text-red-400', 'text-green-400');
     analyzeButton.disabled = true;
     analyzeButton.classList.add('loading');
-    resultsContainer.innerHTML = '';
+    resultsContainer.innerHTML = ''; // Limpiar resultados anteriores
 
+    // Ejecutar ambas promesas (análisis) en paralelo
+    // Promise.allSettled espera a que AMBAS terminen, incluso si una falla
     const [vtResult, htmlResult] = await Promise.allSettled([
         callVirusTotalAPI(url),
         analyzeHtmlContent(url)
     ]);
 
+    // Procesar y mostrar resultados
     let finalHtml = '';
 
+    // 1. Añadir resultado de VirusTotal
     if (vtResult.status === 'fulfilled') {
-        finalHtml += vtResult.value;
+        finalHtml += vtResult.value; // Añadir HTML de VirusTotal
     } else {
+        // Si falló, mostrar el error
         console.error('Error en VirusTotal:', vtResult.reason);
         finalHtml += `<div class="analysis-section-vt-error bg-gray-800 p-4 rounded-lg border border-red-500/50">
                         <h3 class="text-xl font-bold mb-3 text-red-300">Análisis de Seguridad (VirusTotal)</h3>
@@ -438,10 +475,12 @@ async function handleAnalyzeClick() {
                      </div>`;
     }
 
+    // 2. Añadir resultado del Análisis HTML (con un espacio)
     if (htmlResult.status === 'fulfilled') {
-        finalHtml += '<div class="mt-4"></div>';
-        finalHtml += htmlResult.value;
+        finalHtml += '<div class="mt-4"></div>'; // Espaciador
+        finalHtml += htmlResult.value; // Añadir HTML del análisis local
     } else {
+        // Si falló, mostrar el error
         console.error('Error en Análisis HTML:', htmlResult.reason);
         finalHtml += `<div class="analysis-section-html-error bg-gray-800 p-4 rounded-lg mt-4 border border-red-500/50">
                         <h3 class="text-xl font-bold mb-3 text-red-300">Análisis de Contenido HTML</h3>
@@ -449,15 +488,26 @@ async function handleAnalyzeClick() {
                      </div>`;
     }
 
+    // Mostrar todo en el contenedor
     resultsContainer.innerHTML = finalHtml;
     analyzerStatus.textContent = 'Análisis completado.';
     analyzerStatus.classList.add('text-green-400');
     
+    // Reactivar el botón
     analyzeButton.disabled = false;
     analyzeButton.classList.remove('loading');
 }
+// --- LÓGICA DEL ANALIZADOR DE ENLACES (PARTE 2 de 3) ---
+// (Pega esta parte después de la PARTE 1)
 
+/**
+ * Esta es tu función original.
+ * Analiza el contenido HTML de la URL usando un proxy (allorigins.win)
+ * y extrae H1, Título, Imágenes, etc.
+ * Devuelve un string de HTML con los resultados.
+ */
 async function analyzeHtmlContent(url) {
+    // Usamos el proxy para evitar problemas de CORS
     const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
     
     const response = await fetch(proxyUrl);
@@ -467,6 +517,7 @@ async function analyzeHtmlContent(url) {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
 
+    // Extracción de datos
     const title = doc.querySelector('title')?.textContent.trim() || 'Sin título';
     const h1 = doc.querySelector('h1')?.textContent.trim() || 'No se encontró H1';
     const description = doc.querySelector('meta[name="description"]')?.getAttribute('content')?.trim() || 'Sin meta descripción';
@@ -475,19 +526,22 @@ async function analyzeHtmlContent(url) {
     const linkHrefs = Array.from(doc.querySelectorAll('a'))
         .map(a => a.getAttribute('href'))
         .filter(href => href && !href.startsWith('#') && href.trim() !== '')
-        .filter((href, index, self) => self.indexOf(href) === index)
-        .slice(0, 10);
+        .filter((href, index, self) => self.indexOf(href) === index) // Quitar duplicados
+        .slice(0, 10); // Limitar a 10
 
-    const images = Array.from(doc.querySelectorAll('img')).slice(0, 10);
+    // Análisis de Imágenes
+    const images = Array.from(doc.querySelectorAll('img')).slice(0, 10); // Limitar a 10
     let imagesHTML = images.map(img => {
         const src = img.getAttribute('src');
         const alt = img.getAttribute('alt');
         let altStatus = '';
         
+        // Resolver URL relativa
         let absoluteSrc = src;
         try { 
             if (src) absoluteSrc = new URL(src, url).href;
         } catch (e) {
+            // Dejar el src original si falla la resolución
         }
 
         if (alt === null || alt.trim() === '') {
@@ -499,6 +553,7 @@ async function analyzeHtmlContent(url) {
     }).join('');
     if (images.length === 0) imagesHTML = '<li>No se encontraron imágenes.</li>';
 
+    // Devolver solo el string HTML del resultado
     return `
         <div class="analysis-section-html bg-gray-800 p-4 rounded-lg border border-gray-700">
             <h3 class="text-xl font-bold mb-3 text-white">Análisis de Contenido HTML</h3>
@@ -528,23 +583,36 @@ async function analyzeHtmlContent(url) {
         </div>
     `;
 }
+// --- LÓGICA DEL ANALIZADOR DE ENLACES (PARTE 3 de 3) ---
+// (Pega esta parte al final, después de la PARTE 2)
 
+/**
+ * Esta es la nueva función.
+ * Llama a tu backend de Render (infortech.onrender.com)
+ * y devuelve un string de HTML con el resultado de VirusTotal.
+ */
 async function callVirusTotalAPI(urlToAnalyze) {
+    // URL de tu backend en Render
     const backendUrl = 'https://infortech.onrender.com/analizar';
+    
+    // Construye la URL con el query parameter
     const apiUrl = `${backendUrl}?url=${encodeURIComponent(urlToAnalyze)}`;
 
+    // Manejo de tiempo de espera (timeout) de 15 segundos
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 30000);
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 segundos
     try {
         const response = await fetch(apiUrl, { signal: controller.signal });
-        clearTimeout(timeoutId);
+        clearTimeout(timeoutId); // Cancelar el timeout si la respuesta llega
 
         if (!response.ok) {
+            // Si el servidor de Render responde con un error (ej. 500)
             throw new Error(`El servidor de Render respondió con error: ${response.status}`);
         }
         
         const data = await response.json();
 
+        // Construir el HTML basado en la respuesta
         let statusHTML = '';
         if (data.status === 'NoEncontrado') {
             statusHTML = `
@@ -567,6 +635,7 @@ async function callVirusTotalAPI(urlToAnalyze) {
              statusHTML = `<p class="text-red-500">Error: Respuesta desconocida del backend.</p>`;
         }
 
+        // Devolver solo el string HTML del resultado
         return `
             <div class="analysis-section-vt bg-gray-800 p-4 rounded-lg border border-blue-500/50">
                 <h3 class="text-xl font-bold mb-3 text-white">Análisis de Seguridad (VirusTotal)</h3>
@@ -575,10 +644,13 @@ async function callVirusTotalAPI(urlToAnalyze) {
         `;
 
     } catch (error) {
+        // Limpiar el timeout si hubo un error
         clearTimeout(timeoutId);
         if (error.name === 'AbortError') {
+            // Esto es si se activa el timeout
             throw new Error('Tiempo de espera agotado. El servidor de Render tardó demasiado en responder.');
         }
+        // Otro tipo de error (ej. de red)
         throw error;
     }
 }
