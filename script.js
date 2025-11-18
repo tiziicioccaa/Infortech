@@ -1,242 +1,356 @@
-// Espera a que todo el HTML esté cargado
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- SECCIÓN 1: LÓGICA DE NAVEGACIÓN (PESTAÑAS) ---
-    const navButtons = document.querySelectorAll('.nav-btn');
-    const toolContents = document.querySelectorAll('.tool-content');
+    // ======================================================
+    // 1. LÓGICA DEL JUEGO TA-TE-TI
+    // ======================================================
+    const gameBoardElement = document.getElementById('gameBoard');
+    const statusMessage = document.getElementById('statusMessage');
+    const resetRoundButton = document.getElementById('resetRoundButton');
+    const resetScoreButton = document.getElementById('resetScoreButton');
+    const scoreXElement = document.getElementById('scoreX');
+    const scoreOElement = document.getElementById('scoreO');
+    const scoreDrawElement = document.getElementById('scoreDraw');
+    const modePVPButton = document.getElementById('modePVP');
+    const modePVCButton = document.getElementById('modePVC');
+    const difficultySelector = document.getElementById('difficultySelector');
+    const aiDifficultySelect = document.getElementById('aiDifficulty');
 
-    navButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            // 1. Obtiene el ID de la herramienta a mostrar (ej. "analyzer")
-            const toolId = button.dataset.tool;
+    let currentPlayer = 'X';
+    let gameActive = true;
+    let boardState = Array(9).fill(null);
+    let score = { X: 0, O: 0, draw: 0 };
+    let gameMode = 'pvp'; 
 
-            // 2. Quita la clase "active" de todos los botones y contenidos
-            navButtons.forEach(btn => btn.classList.remove('active'));
-            toolContents.forEach(content => content.classList.remove('active'));
-
-            // 3. Añade la clase "active" solo al botón y contenido seleccionados
-            button.classList.add('active');
-            document.getElementById(`tool-${toolId}`).classList.add('active');
-        });
-    });
-
-    // --- SECCIÓN 2: HERRAMIENTA 1 - ANALIZADOR DE ENLACES ---
-    const urlInput = document.getElementById('url-input');
-    const analyzeBtn = document.getElementById('analyze-btn');
-    const resultsContainer = document.getElementById('analysis-results');
-
-    // Elementos de resultados
-    const protocolValue = document.getElementById('protocol-value');
-    const protocolExplanation = document.getElementById('protocol-explanation');
-    const protocolCard = document.getElementById('result-protocol');
-
-    const domainValue = document.getElementById('domain-value');
-    const domainExplanation = document.getElementById('domain-explanation');
-    const domainCard = document.getElementById('result-domain');
-
-    const subdomainValue = document.getElementById('subdomain-value');
-    const subdomainExplanation = document.getElementById('subdomain-explanation');
-    const subdomainCard = document.getElementById('result-subdomain');
-
-    analyzeBtn.addEventListener('click', () => {
-        let urlString = urlInput.value.trim();
-        
-        // Añade "https://" si el usuario no pone protocolo, para que el analizador funcione
-        if (!urlString.startsWith('http://') && !urlString.startsWith('https://')) {
-            urlString = 'https://' + urlString;
-            urlInput.value = urlString;
-        }
-
-        try {
-            // 1. Usamos la API nativa del navegador para desarmar la URL
-            const url = new URL(urlString);
-
-            // 2. Analiza el Protocolo (http vs https)
-            protocolValue.textContent = url.protocol;
-            if (url.protocol === 'https:') {
-                protocolExplanation.textContent = "¡Bien! (HTTPS) La conexión es segura y encriptada. Es un buen primer indicio.";
-                protocolCard.className = 'result-card safe';
-            } else {
-                protocolExplanation.textContent = "¡PELIGRO! (HTTP) Esta web no es segura. Tus datos (usuarios, contraseñas) viajarían sin encriptar.";
-                protocolCard.className = 'result-card danger';
-            }
-
-            // 3. Analiza el Dominio Real (El Dueño)
-            // url.hostname nos da ej: "login.google.com-support.xyz"
-            const parts = url.hostname.split('.');
-            // El dominio real son las últimas 2 partes (ej. "com-support.xyz" o "google.com")
-            const mainDomain = parts.slice(-2).join('.');
-            
-            domainValue.textContent = mainDomain;
-            if (mainDomain.includes('google.com') || mainDomain.includes('netflix.com') || mainDomain.includes('bancogalicia.com')) {
-                domainExplanation.textContent = "Parece ser un dominio legítimo conocido. Es probable que sea seguro.";
-                domainCard.className = 'result-card safe';
-            } else {
-                domainExplanation.textContent = "¡ALERTA! Este es el *verdadero* dueño de la web. ¿Confías en '" + mainDomain + "'? Si esperabas ver 'google.com', esto es un engaño.";
-                domainCard.className = 'result-card warning';
-            }
-
-            // 4. Analiza el Subdominio (El Engaño)
-            const subdomains = parts.slice(0, -2).join('.');
-            subdomainValue.textContent = subdomains || '(Ninguno)';
-            if (subdomains.includes('login') || subdomains.includes('account') || subdomains.includes('google') || subdomains.includes('netflix')) {
-                subdomainExplanation.textContent = "¡ENGAÑO! El atacante puso palabras clave aquí para hacerte creer que estás en un sitio oficial, pero el dominio real es el de arriba.";
-                subdomainCard.className = 'result-card danger';
-            } else if (subdomains) {
-                subdomainExplanation.textContent = "Este es un subdominio normal, como 'mail' en 'mail.google.com'.";
-                subdomainCard.className = 'result-card safe';
-            } else {
-                subdomainExplanation.textContent = "No se están usando subdominios para engañar.";
-                subdomainCard.className = 'result-card safe';
-            }
-
-            // Muestra los resultados
-            resultsContainer.style.display = 'block';
-
-        } catch (error) {
-            // Esto pasa si el usuario pone un texto inválido
-            resultsContainer.style.display = 'block';
-            protocolCard.className = 'result-card danger';
-            protocolValue.textContent = "URL Inválida";
-            protocolExplanation.textContent = "No pude analizar lo que escribiste. Asegúrate de que sea una URL válida.";
-            
-            domainCard.style.display = 'none'; // Ocultamos las otras tarjetas
-            subdomainCard.style.display = 'none';
-        }
-    });
-
-    // Oculta los resultados si el usuario empieza a escribir de nuevo
-    urlInput.addEventListener('input', () => {
-        resultsContainer.style.display = 'none';
-        domainCard.style.display = 'block';
-        subdomainCard.style.display = 'block';
-    });
-
-
-    // --- SECCIÓN 3: HERRAMIENTA 2 - JUEGO DE PHISHING ---
-
-    // Define los desafíos del juego
-    const challenges = [
-        {
-            title: 'Desafío 1: Email de Netflix',
-            image: 'https://placehold.co/600x300/222/FFF?text=Email+FALSO+de+Netflix',
-            isPhishing: true,
-            explanation: "¡Correcto! Es phishing. Fíjate que el remitente es 'info@net-flix.com' (con guion) y el enlace te pide 'verificar tu cuenta' creando urgencia."
-        },
-        {
-            title: 'Desafío 2: SMS del Banco',
-            image: 'https://placehold.co/600x300/FFF/000?text=SMS+FALSO+del+Banco',
-            isPhishing: true,
-            explanation: "¡Bien hecho! Los bancos NUNCA te pedirán tu clave o que entres a un enlace por SMS. El enlace 'banco-seguridad.xyz' es claramente falso."
-        },
-        {
-            title: 'Desafío 3: Email de Google (Real)',
-            image: 'https://placehold.co/600x300/4285F4/FFF?text=Email+REAL+de+Google',
-            isPhishing: false,
-            explanation: "¡Correcto! Este email es real. Proviene de '@google.com' y el enlace te lleva a 'myaccount.google.com'. No te pide contraseñas, solo te informa."
-        },
-        {
-            title: '¡Juego Terminado!',
-            image: 'https://placehold.co/600x300/1DB954/FFF?text=¡Felicitaciones!',
-            isPhishing: null, // Marca de fin
-            explanation: "Completaste todos los desafíos. ¡Ahora estás más atento a los engaños!"
-        }
+    const winningCombinations = [
+        [0, 1, 2], [3, 4, 5], [6, 7, 8],
+        [0, 3, 6], [1, 4, 7], [2, 5, 8],
+        [0, 4, 8], [2, 4, 6]
     ];
 
-    let currentChallengeIndex = 0;
-
-    // Elementos del DOM del juego
-    const challengeTitle = document.getElementById('challenge-title');
-    const challengeImage = document.getElementById('challenge-image');
-    const btnReal = document.getElementById('btn-real');
-    const btnPhishing = document.getElementById('btn-phishing');
-    const feedbackCard = document.getElementById('feedback-card');
-    const feedbackTitle = document.getElementById('feedback-title');
-    const feedbackExplanation = document.getElementById('feedback-explanation');
-    const btnNext = document.getElementById('btn-next');
-
-    // Función para cargar un desafío
-    function loadChallenge(index) {
-        const challenge = challenges[index];
-        
-        challengeTitle.textContent = challenge.title;
-        challengeImage.src = challenge.image;
-
-        // Si es el fin del juego, oculta los botones de decisión
-        if (challenge.isPhishing === null) {
-            btnReal.style.display = 'none';
-            btnPhishing.style.display = 'none';
-            // Muestra el feedback final
-            showFeedback(true, challenge.explanation); // true solo para que se vea verde
-            btnNext.textContent = "Reiniciar Juego";
+    // --- Configuración de Modos ---
+    function setGameMode(newMode) {
+        gameMode = newMode;
+        if (newMode === 'pvp') {
+            modePVPButton.classList.add('active');
+            modePVCButton.classList.remove('active');
+            difficultySelector.classList.add('hidden');
         } else {
-            // Estado normal
-            btnReal.style.display = 'inline-flex';
-            btnPhishing.style.display = 'inline-flex';
+            modePVCButton.classList.add('active');
+            modePVPButton.classList.remove('active');
+            difficultySelector.classList.remove('hidden');
+        }
+        handleResetScore();
+    }
+
+    modePVPButton.addEventListener('click', () => setGameMode('pvp'));
+    modePVCButton.addEventListener('click', () => setGameMode('pvc'));
+
+    // --- Marcador y Tablero ---
+    function updateScoreboard() {
+        scoreXElement.textContent = score.X;
+        scoreOElement.textContent = score.O;
+        scoreDrawElement.textContent = score.draw;
+    }
+
+    function handleResetScore() {
+        score.X = 0; score.O = 0; score.draw = 0;
+        initializeGame();
+    }
+
+    function initializeGame() {
+        boardState.fill(null);
+        currentPlayer = 'X';
+        gameActive = true;
+        statusMessage.textContent = `Turno de ${currentPlayer}`;
+        gameBoardElement.innerHTML = '';
+        
+        for (let i = 0; i < 9; i++) {
+            const cell = document.createElement('div');
+            cell.classList.add('cell', 'bg-gray-700', 'hover:bg-gray-600', 'rounded-lg'); // Clases base de Tailwind
+            cell.dataset.index = i;
+            cell.addEventListener('click', handleCellClick);
+            gameBoardElement.appendChild(cell);
+        }
+        updateScoreboard();
+    }
+
+    // --- Lógica de Movimiento ---
+    function handleCellClick(event) {
+        if (!gameActive) return;
+        const clickedCell = event.target;
+        const cellIndex = parseInt(clickedCell.dataset.index);
+        if (boardState[cellIndex] !== null) return;
+
+        makeMove(clickedCell, cellIndex);
+
+        // Turno de la CPU si corresponde
+        if (gameMode === 'pvc' && gameActive && currentPlayer === 'O') {
+            gameBoardElement.style.pointerEvents = 'none'; 
+            statusMessage.textContent = 'Pensando...';
+            setTimeout(() => {
+                cpuMove();
+                gameBoardElement.style.pointerEvents = 'auto';
+            }, 700);
+        }
+    }
+
+    function makeMove(cell, index) {
+        // Doble chequeo por seguridad
+        if (!cell) cell = gameBoardElement.children[index];
+        
+        if (boardState[index] !== null || !gameActive) return;
+        
+        boardState[index] = currentPlayer;
+        cell.textContent = currentPlayer;
+        
+        // Aplicar estilos (clases definidas en tu HTML style)
+        cell.classList.add(currentPlayer.toLowerCase());
+        cell.classList.remove('hover:bg-gray-600'); 
+
+        if (checkWin()) {
+            gameActive = false;
+            statusMessage.textContent = `¡Ganó ${currentPlayer}!`;
+            score[currentPlayer]++;
+            updateScoreboard();
+        } else if (checkDraw()) {
+            gameActive = false;
+            statusMessage.textContent = '¡Es un empate!';
+            score.draw++;
+            updateScoreboard();
+        } else {
+            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+            statusMessage.textContent = `Turno de ${currentPlayer}`;
+        }
+    }
+
+    function checkWin() {
+        for (const combination of winningCombinations) {
+            const [a, b, c] = combination;
+            if (boardState[a] === currentPlayer && boardState[b] === currentPlayer && boardState[c] === currentPlayer) {
+                // Resaltar ganadores
+                [a,b,c].forEach(idx => {
+                   gameBoardElement.children[idx].style.backgroundColor = currentPlayer === 'X' ? '#1e3a8a' : '#831843';
+                });
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function checkDraw() { return !boardState.includes(null); }
+
+    // --- Inteligencia Artificial (CPU) ---
+    function cpuMove() {
+        if (!gameActive) return;
+        const difficulty = aiDifficultySelect.value;
+        let move = -1;
+
+        if (difficulty === 'easy') move = findRandomMove();
+        else if (difficulty === 'medium') move = (Math.random() < 0.7) ? findSmartMove() : findRandomMove();
+        else move = findSmartMove(); // Hard
+        
+        if (move !== -1) {
+            const cell = gameBoardElement.children[move];
+            makeMove(cell, move);
+        }
+    }
+
+    function findSmartMove() {
+        // 1. Intentar Ganar
+        for (let i = 0; i < 9; i++) {
+            if (boardState[i] === null) {
+                boardState[i] = 'O';
+                if (checkWinCPU('O')) { boardState[i] = null; return i; }
+                boardState[i] = null;
+            }
+        }
+        // 2. Intentar Bloquear
+        for (let i = 0; i < 9; i++) {
+            if (boardState[i] === null) {
+                boardState[i] = 'X';
+                if (checkWinCPU('X')) { boardState[i] = null; return i; }
+                boardState[i] = null;
+            }
+        }
+        // 3. Centro o Random
+        if (boardState[4] === null) return 4;
+        return findRandomMove();
+    }
+
+    function findRandomMove() {
+        const emptyCells = boardState.map((val, idx) => val === null ? idx : null).filter(val => val !== null);
+        if (emptyCells.length === 0) return -1;
+        return emptyCells[Math.floor(Math.random() * emptyCells.length)];
+    }
+
+    function checkWinCPU(player) {
+        for (const [a, b, c] of winningCombinations) {
+            if (boardState[a] === player && boardState[b] === player && boardState[c] === player) return true;
+        }
+        return false;
+    }
+    
+    resetRoundButton.addEventListener('click', initializeGame);
+    resetScoreButton.addEventListener('click', handleResetScore);
+    
+    // Iniciar juego al cargar
+    initializeGame(); 
+
+
+    // ======================================================
+    // 2. LÓGICA DE PESTAÑAS (URL vs ARCHIVO)
+    // ======================================================
+    const btnTabUrl = document.getElementById('btnTabUrl');
+    const btnTabFile = document.getElementById('btnTabFile');
+    const tabUrlContent = document.getElementById('tabUrlContent');
+    const tabFileContent = document.getElementById('tabFileContent');
+
+    btnTabUrl.addEventListener('click', () => {
+        btnTabUrl.classList.add('active');
+        btnTabFile.classList.remove('active');
+        tabUrlContent.classList.remove('hidden');
+        tabFileContent.classList.add('hidden');
+    });
+
+    btnTabFile.addEventListener('click', () => {
+        btnTabFile.classList.add('active');
+        btnTabUrl.classList.remove('active');
+        tabFileContent.classList.remove('hidden');
+        tabUrlContent.classList.add('hidden');
+    });
+
+
+    // ======================================================
+    // 3. LÓGICA DEL ANALIZADOR INFORTECH (VirusTotal)
+    // ======================================================
+    const urlInput = document.getElementById('urlInput');
+    const fileInput = document.getElementById('fileInput');
+    const analyzeButton = document.getElementById('analyzeButton');
+    const analyzeFileButton = document.getElementById('analyzeFileButton');
+    const analyzerStatus = document.getElementById('analyzerStatus');
+    const resultsContainer = document.getElementById('resultsContainer');
+
+    // --- A. ANALIZAR URL ---
+    analyzeButton.addEventListener('click', async () => {
+        let url = urlInput.value.trim();
+        if (!url) return alert("Por favor, ingresa una URL.");
+        if (!url.startsWith('http')) { url = 'https://' + url; urlInput.value = url; }
+
+        analyzerStatus.textContent = 'Analizando URL... (Espera 30s si el servidor está dormido)';
+        analyzerStatus.className = 'text-lg mt-4 h-6 text-yellow-400';
+        analyzeButton.disabled = true;
+        analyzeButton.classList.add('loading');
+        resultsContainer.innerHTML = '<p class="text-center text-gray-400">Procesando...</p>';
+
+        // Timeout aumentado a 30s para el "cold start" de Render
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000); 
+
+        try {
+            // Ejecutar ambas peticiones en paralelo (Backend + Proxy HTML)
+            const [vtResult, htmlResult] = await Promise.allSettled([
+                fetch(`https://infortech.onrender.com/analizar?url=${encodeURIComponent(url)}`, { signal: controller.signal })
+                    .then(res => { clearTimeout(timeoutId); return res.json(); }),
+                fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`)
+                    .then(res => res.text())
+            ]);
+
+            let finalHtml = "";
+
+            // 1. Procesar Resultado VirusTotal
+            if (vtResult.status === 'fulfilled') {
+                const data = vtResult.value;
+                if (data.stats) {
+                    const isSafe = data.stats.malicious === 0 && data.stats.suspicious === 0;
+                    finalHtml += `
+                        <div class="bg-gray-800 p-4 rounded-lg border ${isSafe ? 'border-green-500' : 'border-red-500'} mb-4">
+                            <h3 class="text-xl font-bold mb-2 text-white">🛡️ Reporte de Seguridad (VirusTotal)</h3>
+                            <div class="grid grid-cols-3 gap-2 text-center">
+                                <div><p class="text-red-400 font-bold">Malignos</p><p class="text-2xl">${data.stats.malicious}</p></div>
+                                <div><p class="text-yellow-400 font-bold">Sospechosos</p><p class="text-2xl">${data.stats.suspicious}</p></div>
+                                <div><p class="text-green-400 font-bold">Seguros</p><p class="text-2xl">${data.stats.harmless}</p></div>
+                            </div>
+                        </div>`;
+                } else {
+                    finalHtml += `<p class="text-red-400 mb-4">Error VT: ${data.error || data.message || 'Desconocido'}</p>`;
+                }
+            } else {
+                finalHtml += `<p class="text-red-400 mb-4">Error conectando al Backend: ${vtResult.reason}</p>`;
+            }
+
+            // 2. Procesar Resultado HTML
+            if (htmlResult.status === 'fulfilled') {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(htmlResult.value, 'text/html');
+                const title = doc.querySelector('title')?.textContent || 'Sin título';
+                const h1 = doc.querySelector('h1')?.textContent || 'Sin H1';
+                finalHtml += `
+                    <div class="bg-gray-800 p-4 rounded-lg border border-blue-500">
+                        <h3 class="text-xl font-bold mb-2 text-white">📄 Análisis de Contenido</h3>
+                        <p><strong>Título:</strong> ${title}</p>
+                        <p><strong>Encabezado H1:</strong> ${h1}</p>
+                    </div>`;
+            }
+
+            resultsContainer.innerHTML = finalHtml;
+            analyzerStatus.textContent = 'Análisis completado.';
+            analyzerStatus.className = 'text-lg mt-4 h-6 text-green-400';
+
+        } catch (error) {
+            analyzerStatus.textContent = 'Error crítico de conexión.';
+            analyzerStatus.className = 'text-lg mt-4 h-6 text-red-400';
+        } finally {
+            analyzeButton.disabled = false;
+            analyzeButton.classList.remove('loading');
+        }
+    });
+
+    // --- B. ANALIZAR ARCHIVO ---
+    analyzeFileButton.addEventListener('click', async () => {
+        if (!fileInput.files[0]) return alert("Selecciona un archivo primero.");
+
+        const formData = new FormData();
+        formData.append('file', fileInput.files[0]);
+
+        analyzerStatus.textContent = 'Subiendo y Analizando Archivo... (Esto toma tiempo)';
+        analyzerStatus.className = 'text-lg mt-4 h-6 text-yellow-400';
+        analyzeFileButton.disabled = true;
+        analyzeFileButton.classList.add('loading');
+        resultsContainer.innerHTML = '<p class="text-center text-gray-400">Subiendo a VirusTotal...</p>';
+
+        try {
+            const response = await fetch('https://infortech.onrender.com/analizar-archivo', {
+                method: 'POST',
+                body: formData
+            });
             
-            // --- ¡NUEVO! Habilita los botones ---
-            btnReal.disabled = false;
-            btnPhishing.disabled = false;
+            const data = await response.json();
+            
+            if (data.stats) {
+                resultsContainer.innerHTML = `
+                    <div class="bg-gray-800 p-4 rounded-lg border border-green-500/50">
+                        <h3 class="text-xl font-bold mb-2 text-white">📂 Reporte de Archivo</h3>
+                        <p class="text-sm text-gray-400 mb-2">ID: ${data.meta.file_info.sha256.substring(0, 15)}...</p>
+                        <ul class="space-y-1">
+                            <li class="text-red-400">Malignos: ${data.stats.malicious}</li>
+                            <li class="text-green-400">Inofensivos: ${data.stats.harmless}</li>
+                        </ul>
+                    </div>`;
+                analyzerStatus.textContent = 'Análisis de archivo completado.';
+                analyzerStatus.className = 'text-lg mt-4 h-6 text-green-400';
+            } else {
+                throw new Error(data.error || "Error desconocido del servidor");
+            }
 
-            feedbackCard.style.display = 'none'; // Oculta el feedback
-            btnNext.textContent = "Siguiente Desafío";
+        } catch (error) {
+            console.error(error);
+            analyzerStatus.textContent = 'Error al analizar archivo.';
+            analyzerStatus.className = 'text-lg mt-4 h-6 text-red-400';
+            resultsContainer.innerHTML = `<p class="text-red-400">Detalle: ${error.message}</p>`;
+        } finally {
+            analyzeFileButton.disabled = false;
+            analyzeFileButton.classList.remove('loading');
         }
-    }
-
-    // Función para manejar la respuesta del usuario
-    function handleAnswer(userGuess) { // userGuess es true (para "real") o false (para "phishing")
-        
-        // --- ¡NUEVO! Deshabilita los botones ---
-        btnReal.disabled = true;
-        btnPhishing.disabled = true;
-
-        const challenge = challenges[currentChallengeIndex];
-        // La respuesta correcta es true si NO es phishing
-        const correctAnswer = (challenge.isPhishing === false); 
-
-        if (userGuess === correctAnswer) {
-            // Respuesta correcta
-            showFeedback(true, challenge.explanation);
-        } else {
-            // Respuesta incorrecta
-            showFeedback(false, "¡Incorrecto! " + challenge.explanation);
-        }
-    }
-
-    // Función para mostrar la tarjeta de feedback
-    function showFeedback(isCorrect, explanation) {
-        feedbackCard.style.display = 'block';
-        feedbackExplanation.textContent = explanation;
-
-        if (isCorrect) {
-            feedbackTitle.textContent = "¡Correcto!";
-            feedbackCard.className = 'feedback-card correct';
-        } else {
-            feedbackTitle.textContent = "¡Incorrecto!";
-            feedbackCard.className = 'feedback-card incorrect';
-        }
-    }
-
-    // --- Listeners de los botones del juego ---
-    btnReal.addEventListener('click', () => {
-        handleAnswer(true); // El usuario adivinó "Real"
     });
 
-    btnPhishing.addEventListener('click', () => {
-        handleAnswer(false); // El usuario adivinó "Phishing"
-    });
-
-    btnNext.addEventListener('click', () => {
-        currentChallengeIndex++; // Avanza al siguiente desafío
-        
-        // Si llegamos al final, reinicia
-        if (currentChallengeIndex >= challenges.length) {
-            currentChallengeIndex = 0;
-        }
-        
-        loadChallenge(currentChallengeIndex);
-    });
-
-    // Carga el primer desafío (índice 0) al iniciar la app
-    load
-
+});
