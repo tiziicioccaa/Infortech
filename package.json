@@ -1,7 +1,8 @@
+
 {
-  "name": "infortech",
-  "version": "1.0.0",
-  "description": "Backend para analizar URLs con VirusTotal",
+  "name":"Infortech",
+  "version": "2.0.0",
+  "description": "Backend para analizar URLs y Archivos con VirusTotal",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -12,6 +13,9 @@
   "dependencies": {
     "express": "^4.18.2",
     "cors": "^2.8.5",
-    "node-fetch": "^2.6.7"
+    "node-fetch": "^2.6.7",
+    "multer": "^1.4.5-lts.1",
+    "form-data": "^4.0.0"
   }
+}
 }
