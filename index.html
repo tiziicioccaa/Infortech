@@ -5,47 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Infortech</title>
     
-    <!-- Script de Tailwind CSS (Necesario para el diseño) -->
+    <!-- Script de Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
     <style>
-        /* Estilos personalizados del Ta-Te-Ti */
-        .cell {
-            width: 100px;
-            height: 100px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 3rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            user-select: none;
-        }
-        .cell.x { color: #3B82F6; }
-        .cell.o { color: #EC4899; }
-        @media (max-width: 640px) {
-            .cell { width: 80px; height: 80px; font-size: 2.5rem; }
-        }
+        /* Estilos del Analizador */
         #analyzeButton.loading { cursor: not-allowed; background-color: #374151; }
-        .score-box {
-            background-color: #1F2937;
-            padding: 0.75rem 1.25rem;
-            border-radius: 0.75rem;
-            font-size: 1.25rem;
-            font-weight: 600;
-        }
-        /* Botones de modo de juego */
-        .mode-btn {
-            background-color: #374151;
-            border: 2px solid #4B5563;
-            transition: all 0.3s;
-        }
-        .mode-btn.active {
-            background-color: #2563EB;
-            border-color: #3B82F6;
-            box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
-        }
+        
         /* Botones de Pestañas (Tabs) */
         .tab-btn {
             border-bottom: 2px solid transparent;
@@ -65,105 +31,47 @@
 </head>
 <body class="bg-gray-900 text-white font-sans flex items-center justify-center min-h-screen p-4">
 
-    <div class="container mx-auto max-w-7xl">
-        <div class="flex flex-col lg:flex-row gap-8">
+    <div class="container mx-auto max-w-4xl">
+        <!-- ANALIZADOR WEB Y ARCHIVOS -->
+        <div class="bg-gray-800 p-6 md:p-8 rounded-2xl shadow-2xl w-full flex flex-col">
             
-            <!-- COLUMNA 1: TA-TE-TI -->
-            <div class="bg-gray-800 p-6 md:p-8 rounded-2xl shadow-2xl text-center w-full lg:w-1/2 flex flex-col">
-                <h1 class="text-4xl md:text-5xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-pink-500">
-                    Ta-Te-Ti
-                </h1>
+            <h1 class="text-4xl md:text-5xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-blue-500 text-center">
+                Analizador Infortech
+            </h1>
+            
+            <!-- Pestañas (Tabs) -->
+            <div class="flex border-b border-gray-700 mb-6">
+                <button id="btnTabUrl" class="tab-btn active flex-1 text-center py-2 text-lg">Analizar URL</button>
+                <button id="btnTabFile" class="tab-btn flex-1 text-center py-2 text-lg">Analizar Archivo</button>
+            </div>
 
-                <!-- Selector de Modo Juego -->
-                <div class="mb-4">
-                    <h3 class="text-xl font-semibold mb-3 text-gray-300">Modo de Juego</h3>
-                    <div class="flex justify-center gap-4">
-                        <button id="modePVP" class="mode-btn active text-white font-bold py-2 px-6 rounded-lg">
-                            Jugador vs Jugador
-                        </button>
-                        <button id="modePVC" class="mode-btn text-white font-bold py-2 px-6 rounded-lg">
-                            Jugador vs CPU
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Selector Dificultad -->
-                <div id="difficultySelector" class="mb-6 hidden">
-                    <h3 class="text-xl font-semibold mb-3 text-gray-300">Dificultad de la CPU</h3>
-                    <select id="aiDifficulty" class="w-full bg-gray-700 text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="easy">Fácil (Juega al azar)</option>
-                        <option value="medium" selected>Medio (A veces falla)</option>
-                        <option value="hard">Difícil (Casi imbatible)</option>
-                    </select>
-                </div>
-        
-                <p id="statusMessage" class="text-xl md:text-2xl mb-6 h-8">
-                    Turno de X
-                </p>
-        
-                <div id="gameBoard" class="grid grid-cols-3 gap-2 bg-gray-900 p-2 rounded-lg max-w-xs mx-auto"></div>
-
-                <div class="mt-8">
-                    <h3 class="text-2xl font-bold mb-4 text-gray-300">Marcador</h3>
-                    <div class="flex justify-center gap-4">
-                        <div class="score-box text-blue-400">X: <span id="scoreX">0</span></div>
-                        <div class="score-box text-gray-400">Empates: <span id="scoreDraw">0</span></div>
-                        <div class="score-box text-pink-400">O: <span id="scoreO">0</span></div>
-                    </div>
-                </div>
-        
-                <div class="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
-                    <button id="resetRoundButton" class="bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 px-8 rounded-full text-lg transition duration-300 shadow-lg">
-                        Reiniciar Ronda
-                    </button>
-                    <button id="resetScoreButton" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-8 rounded-full text-lg transition duration-300 shadow-lg">
-                        Reiniciar Marcador
+            <!-- Contenido: Analizar URL -->
+            <div id="tabUrlContent">
+                <p class="text-lg md:text-xl mb-4 h-8">Pega una URL para analizar</p>
+                <div class="flex flex-col sm:flex-row gap-2">
+                    <input type="text" id="urlInput" placeholder="https://ejemplo.com" class="w-full bg-gray-700 text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400">
+                    <button id="analyzeButton" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 shadow-lg whitespace-nowrap">
+                        Analizar URL
                     </button>
                 </div>
             </div>
 
-            <!-- COLUMNA 2: ANALIZADOR WEB Y ARCHIVOS -->
-            <div class="bg-gray-800 p-6 md:p-8 rounded-2xl shadow-2xl w-full lg:w-1/2 flex flex-col">
-                
-                <h1 class="text-4xl md:text-5xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-blue-500">
-                    Analizador Infortech
-                </h1>
-                
-                <!-- Pestañas (Tabs) -->
-                <div class="flex border-b border-gray-700 mb-6">
-                    <button id="btnTabUrl" class="tab-btn active flex-1 text-center py-2 text-lg">Analizar URL</button>
-                    <button id="btnTabFile" class="tab-btn flex-1 text-center py-2 text-lg">Analizar Archivo</button>
-                </div>
-
-                <!-- Contenido: Analizar URL -->
-                <div id="tabUrlContent">
-                    <p class="text-lg md:text-xl mb-4 h-8">Pega una URL para analizar</p>
-                    <div class="flex flex-col sm:flex-row gap-2">
-                        <input type="text" id="urlInput" placeholder="https://ejemplo.com" class="w-full bg-gray-700 text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400">
-                        <button id="analyzeButton" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 shadow-lg whitespace-nowrap">
-                            Analizar URL
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Contenido: Analizar Archivo (Oculto por defecto) -->
-                <div id="tabFileContent" class="hidden">
-                    <p class="text-lg md:text-xl mb-4 h-8">Sube un archivo (Max 25MB)</p>
-                    <div class="flex flex-col gap-4">
-                        <input type="file" id="fileInput" class="w-full bg-gray-700 text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <button id="analyzeFileButton" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 shadow-lg w-full">
-                            Analizar Archivo
-                        </button>
-                    </div>
-                </div>
-
-                <p id="analyzerStatus" class="text-lg mt-4 h-6 text-gray-400"></p>
-
-                <div id="resultsContainer" class="mt-6 text-left bg-gray-900 p-4 rounded-lg flex-grow overflow-auto text-gray-300 min-h-[400px]">
-                    <p>Los resultados aparecerán aquí...</p>
+            <!-- Contenido: Analizar Archivo (Oculto por defecto) -->
+            <div id="tabFileContent" class="hidden">
+                <p class="text-lg md:text-xl mb-4 h-8">Sube un archivo (Max 25MB)</p>
+                <div class="flex flex-col gap-4">
+                    <input type="file" id="fileInput" class="w-full bg-gray-700 text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button id="analyzeFileButton" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 shadow-lg w-full">
+                        Analizar Archivo
+                    </button>
                 </div>
             </div>
 
+            <p id="analyzerStatus" class="text-lg mt-4 h-6 text-gray-400"></p>
+
+            <div id="resultsContainer" class="mt-6 text-left bg-gray-900 p-4 rounded-lg flex-grow overflow-auto text-gray-300 min-h-[400px]">
+                <p>Los resultados aparecerán aquí...</p>
+            </div>
         </div>
     </div>
 
