@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Infortech</title>
+    <title>Infortech - Ciberseguridad</title>
     
     <!-- Script de Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
     <style>
-        /* Estilos del Analizador */
+        /* Estilos generales y del Analizador */
         #analyzeButton.loading { cursor: not-allowed; background-color: #374151; }
         
         /* Botones de Pestañas (Tabs) */
@@ -24,69 +24,142 @@
             color: #3B82F6;
             font-weight: bold;
         }
-        .img-src { word-break: break-all; color: #9CA3AF; font-size: 0.8rem; }
-        .alt-present { color: #10B981; }
-        .alt-missing { color: #F87171; font-weight: bold; }
     </style>
 </head>
 <body class="bg-gray-900 text-white font-sans flex items-center justify-center min-h-screen p-4">
 
     <div class="container mx-auto max-w-4xl">
-        <!-- ANALIZADOR WEB Y ARCHIVOS -->
         <div class="bg-gray-800 p-6 md:p-8 rounded-2xl shadow-2xl w-full flex flex-col">
             
             <h1 class="text-4xl md:text-5xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-blue-500 text-center">
-                Analizador Infortech
+                Infortech Ciberseguridad
             </h1>
             
-            <!-- Pestañas (Tabs) con 3 opciones -->
-            <div class="flex border-b border-gray-700 mb-6">
-                <button id="btnTabUrl" class="tab-btn active flex-1 text-center py-2 text-lg">Analizar URL</button>
-                <button id="btnTabFile" class="tab-btn flex-1 text-center py-2 text-lg">Analizar Archivo</button>
-                <button id="btnTabEmail" class="tab-btn flex-1 text-center py-2 text-lg">Verificar Filtraciones</button>
+            <!-- Pestañas (Tabs) con las 7 opciones -->
+            <div class="flex flex-wrap border-b border-gray-700 mb-6 gap-2">
+                <button id="btnTabUrl" class="tab-btn active px-3 py-2 text-sm md:text-base">URL</button>
+                <button id="btnTabFile" class="tab-btn px-3 py-2 text-sm md:text-base">Archivo</button>
+                <button id="btnTabEmail" class="tab-btn px-3 py-2 text-sm md:text-base">Filtraciones</button>
+                <button id="btnTabGen" class="tab-btn px-3 py-2 text-sm md:text-base">Generador</button>
+                <button id="btnTabVal" class="tab-btn px-3 py-2 text-sm md:text-base">Validador Pass</button>
+                <button id="btnTabHistory" class="tab-btn px-3 py-2 text-sm md:text-base">Historial</button>
+                <button id="btnTabGlossary" class="tab-btn px-3 py-2 text-sm md:text-base">Glosario</button>
             </div>
 
-            <!-- Contenido: Analizar URL -->
-            <div id="tabUrlContent">
-                <p class="text-lg md:text-xl mb-4 h-8">Pega una URL para analizar</p>
-                <div class="flex flex-col sm:flex-row gap-2">
-                    <input type="text" id="urlInput" placeholder="https://ejemplo.com" class="w-full bg-gray-700 text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400">
-                    <button id="analyzeButton" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 shadow-lg whitespace-nowrap">
-                        Analizar URL
-                    </button>
+            <!-- Contenedor dinámico de la pestaña activa -->
+            <div id="activeTabContainer" class="flex flex-col flex-grow">
+                
+                <!-- 1. Pestaña: Analizar URL (Incluye su propia área de resultados) -->
+                <div id="tabUrlContent" class="tab-pane flex flex-col flex-grow">
+                    <p class="text-lg md:text-xl mb-4 h-8">Pega una URL para analizar</p>
+                    <div class="flex flex-col sm:flex-row gap-2">
+                        <input type="text" id="urlInput" placeholder="https://ejemplo.com" class="w-full bg-gray-700 text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400">
+                        <button id="analyzeButton" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 shadow-lg whitespace-nowrap">
+                            Analizar URL
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 2. Pestaña: Analizar Archivo (Incluye su propia área de resultados) -->
+                <div id="tabFileContent" class="tab-pane hidden flex flex-col flex-grow">
+                    <p class="text-lg md:text-xl mb-4 h-8">Sube un archivo (Max 25MB)</p>
+                    <div class="flex flex-col gap-4">
+                        <input type="file" id="fileInput" class="w-full bg-gray-700 text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <button id="analyzeFileButton" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 shadow-lg w-full">
+                            Analizar Archivo
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 3. Pestaña: Verificar Filtraciones -->
+                <div id="tabEmailContent" class="tab-pane hidden flex flex-col flex-grow">
+                    <p class="text-lg md:text-xl mb-4 h-8">Verifica si tu correo fue expuesto</p>
+                    <div class="flex flex-col sm:flex-row gap-2">
+                        <input type="email" id="breach-email" placeholder="ejemplo@correo.com" class="w-full bg-gray-700 text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400" required>
+                        <button id="breach-btn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 shadow-lg whitespace-nowrap">
+                            Verificar
+                        </button>
+                    </div>
+                    <div id="breach-result" class="mt-4 p-3 rounded-lg hidden text-sm"></div>
+                </div>
+
+                <!-- 4. Pestaña Nueva: Generador de Contraseñas -->
+                <div id="tabGenContent" class="tab-pane hidden flex flex-col flex-grow">
+                    <p class="text-lg md:text-xl mb-4">Generador de Claves Seguras</p>
+                    <div class="flex flex-col gap-4 bg-gray-900 p-4 rounded-lg">
+                        <div class="flex items-center gap-2">
+                            <input type="text" id="genPasswordOutput" readonly class="w-full bg-gray-700 text-green-400 font-mono rounded-lg p-3 outline-none">
+                            <button id="copyGenPass" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg font-bold">Copiar</button>
+                        </div>
+                        <div class="flex flex-col gap-2 text-sm">
+                            <label>Longitud: <span id="lengthVal">16</span></label>
+                            <input type="range" id="genLength" min="8" max="32" value="16" class="accent-blue-500">
+                            <div class="flex gap-4 mt-2">
+                                <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="genSymbols" checked class="accent-blue-500"> Símbolos (!@#)</label>
+                                <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="genNumbers" checked class="accent-blue-500"> Números (0-9)</label>
+                            </div>
+                        </div>
+                        <button id="generatePassBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 rounded-lg mt-2">Generar Contraseña</button>
+                    </div>
+                </div>
+
+                <!-- 5. Pestaña Nueva: Validador de Contraseñas -->
+                <div id="tabValContent" class="tab-pane hidden flex flex-col flex-grow">
+                    <p class="text-lg md:text-xl mb-4">Analizador de Fortaleza de Contraseña</p>
+                    <div class="flex flex-col gap-3">
+                        <input type="password" id="valPasswordInput" placeholder="Escribe una contraseña para probar..." class="w-full bg-gray-700 text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <div class="w-full bg-gray-700 h-3 rounded-full overflow-hidden">
+                            <div id="valStrengthBar" class="h-full w-0 transition-all duration-300 bg-red-500"></div>
+                        </div>
+                        <p id="valStrengthText" class="text-sm text-gray-400">Ingresa una clave para evaluar su seguridad.</p>
+                    </div>
+                </div>
+
+                <!-- 6. Pestaña Nueva: Historial -->
+                <div id="tabHistoryContent" class="tab-pane hidden flex flex-col flex-grow">
+                    <p class="text-lg md:text-xl mb-4">Historial de Análisis Recientes</p>
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs text-gray-400">Guardado localmente en tu navegador</span>
+                        <button id="clearHistoryBtn" class="text-xs bg-red-600/50 hover:bg-red-600 text-red-200 px-3 py-1 rounded">Borrar Historial</button>
+                    </div>
+                    <div id="historyListContainer" class="bg-gray-900 p-3 rounded-lg max-h-[300px] overflow-y-auto space-y-2 text-sm">
+                        <p class="text-gray-500 text-center">No hay análisis registrados todavía.</p>
+                    </div>
+                </div>
+
+                <!-- 7. Pestaña Nueva: Glosario Educativo -->
+                <div id="tabGlossaryContent" class="tab-pane hidden flex flex-col flex-grow">
+                    <p class="text-lg md:text-xl mb-4">Glosario de Ciberseguridad</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[350px] overflow-y-auto pr-2">
+                        <div class="bg-gray-900 p-3 rounded border border-gray-700">
+                            <h4 class="font-bold text-blue-400">Phishing</h4>
+                            <p class="text-xs text-gray-300 mt-1">Técnica de suplantación de identidad mediante correos o webs falsas para robar credenciales.</p>
+                        </div>
+                        <div class="bg-gray-900 p-3 rounded border border-gray-700">
+                            <h4 class="font-bold text-blue-400">Ransomware</h4>
+                            <p class="text-xs text-gray-300 mt-1">Software malicioso que cifra tus archivos exigiendo un rescate económico para recuperarlos.</p>
+                        </div>
+                        <div class="bg-gray-900 p-3 rounded border border-gray-700">
+                            <h4 class="font-bold text-blue-400">SQL Injection</h4>
+                            <p class="text-xs text-gray-300 mt-1">Vulnerabilidad que permite a un atacante interferir en las consultas que realiza una app a su base de datos.</p>
+                        </div>
+                        <div class="bg-gray-900 p-3 rounded border border-gray-700">
+                            <h4 class="font-bold text-blue-400">Hashing</h4>
+                            <p class="text-xs text-gray-300 mt-1">Proceso matemático unidireccional que convierte datos en una cadena cifrada de longitud fija.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Área de Resultados Global (Únicamente para URL y Archivo) -->
+            <div id="globalScanResultsWrapper" class="mt-4">
+                <p id="analyzerStatus" class="text-lg h-6 text-gray-400"></p>
+                <div id="resultsContainer" class="mt-2 text-left bg-gray-900 p-4 rounded-lg overflow-auto text-gray-300 min-h-[200px] max-h-[300px]">
+                    <p class="text-center text-gray-500">Los resultados principales aparecerán aquí...</p>
                 </div>
             </div>
 
-            <!-- Contenido: Analizar Archivo (Oculto por defecto) -->
-            <div id="tabFileContent" class="hidden">
-                <p class="text-lg md:text-xl mb-4 h-8">Sube un archivo (Max 25MB)</p>
-                <div class="flex flex-col gap-4">
-                    <input type="file" id="fileInput" class="w-full bg-gray-700 text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <button id="analyzeFileButton" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 shadow-lg w-full">
-                        Analizar Archivo
-                    </button>
-                </div>
-            </div>
-
-            <!-- Contenido: Verificar Filtraciones (Oculto por defecto y adaptado como pestaña) -->
-            <div id="tabEmailContent" class="hidden">
-                <p class="text-lg md:text-xl mb-4 h-8">Ingresa tu correo electrónico para verificar filtraciones</p>
-                <div class="flex flex-col sm:flex-row gap-2">
-                    <input type="email" id="breach-email" placeholder="ejemplo@correo.com" class="w-full bg-gray-700 text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400" required>
-                    <button id="breach-btn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 shadow-lg whitespace-nowrap">
-                        Verificar
-                    </button>
-                </div>
-                <div id="breach-result" class="mt-4 p-3 rounded-lg hidden text-sm">
-                    <!-- Aquí se inyectará el resultado -->
-                </div>
-            </div>
-
-            <p id="analyzerStatus" class="text-lg mt-4 h-6 text-gray-400"></p>
-
-            <div id="resultsContainer" class="mt-6 text-left bg-gray-900 p-4 rounded-lg flex-grow overflow-auto text-gray-300 min-h-[400px]">
-                <p>Los resultados aparecerán aquí...</p>
-            </div>
         </div>
     </div>
 
