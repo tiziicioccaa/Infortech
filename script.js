@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     /* ======================================================
-       1. LÓGICA DE PESTAÑAS (7 MÓDULOS)
+       1. LÓGICA DE PESTAÑAS (8 MÓDULOS INCLUYENDO AUTH)
        ====================================================== */
     const tabs = {
         url: { btn: document.getElementById('btnTabUrl'), content: document.getElementById('tabUrlContent') },
@@ -10,7 +10,8 @@ document.addEventListener('DOMContentLoaded', () => {
         gen: { btn: document.getElementById('btnTabGen'), content: document.getElementById('tabGenContent') },
         val: { btn: document.getElementById('btnTabVal'), content: document.getElementById('tabValContent') },
         history: { btn: document.getElementById('btnTabHistory'), content: document.getElementById('tabHistoryContent') },
-        glossary: { btn: document.getElementById('btnTabGlossary'), content: document.getElementById('tabGlossaryContent') }
+        glossary: { btn: document.getElementById('btnTabGlossary'), content: document.getElementById('tabGlossaryContent') },
+        auth: { btn: document.getElementById('btnTabAuth'), content: document.getElementById('tabAuthContent') }
     };
 
     function switchTab(activeKey) {
@@ -25,6 +26,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         });
+
+        // Ocultar el cuadro de resultados global si no estás en URL o Archivo
+        const resultsWrapper = document.getElementById('globalScanResultsWrapper');
+        if (resultsWrapper) {
+            if (activeKey === 'url' || activeKey === 'file') {
+                resultsWrapper.classList.remove('hidden');
+            } else {
+                resultsWrapper.classList.add('hidden');
+            }
+        }
+
         // Si entra a historial, renderizarlo dinámicamente
         if (activeKey === 'history') renderHistory();
     }
@@ -36,7 +48,127 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     /* ======================================================
-       2. HISTORIAL LOCAL (LocalStorage)
+       2. MÓDULO DE AUTENTICACIÓN (LOGIN / REGISTRO)
+       ====================================================== */
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    const toRegister = document.getElementById('toRegister');
+    const toLogin = document.getElementById('toLogin');
+    const authMessage = document.getElementById('authMessage');
+    const authFormsContainer = document.getElementById('authFormsContainer');
+    const userProfile = document.getElementById('userProfile');
+    const profileName = document.getElementById('profileName');
+    const profileEmail = document.getElementById('profileEmail');
+    const logoutBtn = document.getElementById('logoutBtn');
+
+    // Cambiar vistas entre Login y Registro
+    if (toRegister) {
+        toRegister.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginForm.classList.add('hidden');
+            registerForm.classList.remove('hidden');
+            hideAuthMsg();
+        });
+    }
+
+    if (toLogin) {
+        toLogin.addEventListener('click', (e) => {
+            e.preventDefault();
+            registerForm.classList.add('hidden');
+            loginForm.classList.remove('hidden');
+            hideAuthMsg();
+        });
+    }
+
+    function showAuthMsg(msg, isError = false) {
+        authMessage.textContent = msg;
+        authMessage.className = `text-center text-xs mt-3 ${isError ? 'text-red-400' : 'text-green-400'}`;
+        authMessage.classList.remove('hidden');
+    }
+
+    function hideAuthMsg() {
+        authMessage.classList.add('hidden');
+    }
+
+    // Registro
+    if (registerForm) {
+        registerForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const user = document.getElementById('regUser').value.trim();
+            const email = document.getElementById('regEmail').value.trim().toLowerCase();
+            const pass = document.getElementById('regPass').value;
+
+            let users = JSON.parse(localStorage.getItem('infortech_users')) || [];
+
+            if (users.some(u => u.email === email)) {
+                showAuthMsg("El correo ya está registrado.", true);
+                return;
+            }
+
+            users.push({ user, email, pass });
+            localStorage.setItem('infortech_users', JSON.stringify(users));
+
+            showAuthMsg("¡Cuenta creada exitosamente! Ahora inicia sesión.");
+            registerForm.reset();
+            setTimeout(() => {
+                registerForm.classList.add('hidden');
+                loginForm.classList.remove('hidden');
+                hideAuthMsg();
+            }, 1500);
+        });
+    }
+
+    // Login
+    if (loginForm) {
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+            const pass = document.getElementById('loginPass').value;
+
+            let users = JSON.parse(localStorage.getItem('infortech_users')) || [];
+            const account = users.find(u => u.email === email && u.pass === pass);
+
+            if (account) {
+                localStorage.setItem('infortech_session', JSON.stringify(account));
+                checkSession();
+                loginForm.reset();
+                hideAuthMsg();
+            } else {
+                showAuthMsg("Correo o contraseña incorrectos.", true);
+            }
+        });
+    }
+
+    // Logout
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+            localStorage.removeItem('infortech_session');
+            checkSession();
+        });
+    }
+
+    // Verificar Estado de Sesión al cargar
+    function checkSession() {
+        const session = JSON.parse(localStorage.getItem('infortech_session'));
+        const btnAuth = document.getElementById('btnTabAuth');
+
+        if (session) {
+            authFormsContainer.classList.add('hidden');
+            userProfile.classList.remove('hidden');
+            profileName.textContent = session.user;
+            profileEmail.textContent = session.email;
+            if (btnAuth) btnAuth.textContent = `👤 ${session.user}`;
+        } else {
+            authFormsContainer.classList.remove('hidden');
+            userProfile.classList.add('hidden');
+            if (btnAuth) btnAuth.textContent = "👤 Cuenta";
+        }
+    }
+
+    checkSession();
+
+    /* ======================================================
+       3. HISTORIAL LOCAL (LocalStorage)
        ====================================================== */
     function saveToHistory(tipo, detalle, estado) {
         let history = JSON.parse(localStorage.getItem('infortech_history')) || [];
@@ -46,7 +178,7 @@ document.addEventListener('DOMContentLoaded', () => {
             estado,
             fecha: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
         });
-        if (history.length > 20) history.pop(); // Máximo 20 elementos
+        if (history.length > 20) history.pop();
         localStorage.setItem('infortech_history', JSON.stringify(history));
     }
 
@@ -79,7 +211,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /* ======================================================
-       3. ANALIZADOR DE URL (VirusTotal + Proxy)
+       4. ANALIZADOR DE URL (VirusTotal + Proxy)
        ====================================================== */
     const urlInput = document.getElementById('urlInput');
     const analyzeButton = document.getElementById('analyzeButton');
@@ -111,7 +243,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 renderResult(vtResult, htmlResult);
                 
-                // Guardar en historial si fue exitoso
                 if (vtResult.status === 'fulfilled' && vtResult.value.stats) {
                     const isSafe = vtResult.value.stats.malicious === 0;
                     saveToHistory('URL', url, isSafe ? 'safe' : 'danger');
@@ -127,7 +258,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /* ======================================================
-       4. ANALIZADOR DE ARCHIVO
+       5. ANALIZADOR DE ARCHIVO
        ====================================================== */
     const fileInput = document.getElementById('fileInput');
     const analyzeFileButton = document.getElementById('analyzeFileButton');
@@ -173,7 +304,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Renderizador visual de resultados URL/Archivo
     function renderResult(vt, html) {
         analyzerStatus.textContent = 'Completado';
         analyzerStatus.className = 'text-lg mt-4 h-6 text-green-400';
@@ -231,7 +361,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /* ======================================================
-       5. DETECCIÓN DE FILTRACIONES (EMAIL)
+       6. DETECCIÓN DE FILTRACIONES (EMAIL)
        ====================================================== */
     const breachBtn = document.getElementById("breach-btn");
     const breachEmailInput = document.getElementById("breach-email");
@@ -262,7 +392,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /* ======================================================
-       6. NUEVA FUNCIONALIDAD: GENERADOR DE CONTRASEÑAS
+       7. GENERADOR DE CONTRASEÑAS
        ====================================================== */
     const genPasswordOutput = document.getElementById('genPasswordOutput');
     const genLength = document.getElementById('genLength');
@@ -291,7 +421,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (generatePassBtn) {
         generatePassBtn.addEventListener('click', generatePassword);
-        generatePassword(); // Generar una por defecto al cargar
+        generatePassword();
     }
 
     if (copyGenPass) {
@@ -304,7 +434,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /* ======================================================
-       7. NUEVA FUNCIONALIDAD: VALIDADOR DE CONTRASEÑAS
+       8. VALIDADOR DE CONTRASEÑAS
        ====================================================== */
     const valPasswordInput = document.getElementById('valPasswordInput');
     const valStrengthBar = document.getElementById('valStrengthBar');
@@ -341,33 +471,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 valStrengthText.textContent = "🔒 Contraseña Fuerte y Segura.";
             }
         });
-    }
-
-    function switchTab(activeKey) {
-        Object.keys(tabs).forEach(key => {
-            if (tabs[key].btn && tabs[key].content) {
-                if (key === activeKey) {
-                    tabs[key].btn.classList.add('active');
-                    tabs[key].content.classList.remove('hidden');
-                } else {
-                    tabs[key].btn.classList.remove('active');
-                    tabs[key].content.classList.add('hidden');
-                }
-            }
-        });
-
-        // Ocultar el cuadro de resultados global si no estás en URL o Archivo
-        const resultsWrapper = document.getElementById('globalScanResultsWrapper');
-        if (resultsWrapper) {
-            if (activeKey === 'url' || activeKey === 'file') {
-                resultsWrapper.classList.remove('hidden');
-            } else {
-                resultsWrapper.classList.add('hidden');
-            }
-        }
-
-        // Si entra a historial, renderizarlo dinámicamente
-        if (activeKey === 'history') renderHistory();
     }
 
 });
