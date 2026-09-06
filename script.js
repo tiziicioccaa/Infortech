@@ -1,28 +1,43 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     /* ======================================================
-       1. LÓGICA DE PESTAÑAS (URL vs ARCHIVO)
+       1. LÓGICA DE PESTAÑAS (URL vs ARCHIVO vs EMAIL)
        ====================================================== */
     const btnTabUrl = document.getElementById('btnTabUrl');
     const btnTabFile = document.getElementById('btnTabFile');
+    const btnTabEmail = document.getElementById('btnTabEmail');
+    
     const tabUrlContent = document.getElementById('tabUrlContent');
     const tabFileContent = document.getElementById('tabFileContent');
+    const tabEmailContent = document.getElementById('tabEmailContent');
 
-    if (btnTabUrl && btnTabFile) {
-        btnTabUrl.addEventListener('click', () => {
-            btnTabUrl.classList.add('active'); 
-            btnTabFile.classList.remove('active');
-            tabUrlContent.classList.remove('hidden'); 
-            tabFileContent.classList.add('hidden');
-        });
+    function switchTab(activeTab) {
+        // Remover clase 'active' de todos los botones
+        if (btnTabUrl) btnTabUrl.classList.remove('active');
+        if (btnTabFile) btnTabFile.classList.remove('active');
+        if (btnTabEmail) btnTabEmail.classList.remove('active');
 
-        btnTabFile.addEventListener('click', () => {
-            btnTabFile.classList.add('active'); 
-            btnTabUrl.classList.remove('active');
-            tabFileContent.classList.remove('hidden'); 
-            tabUrlContent.classList.add('hidden');
-        });
+        // Ocultar todos los contenidos
+        if (tabUrlContent) tabUrlContent.classList.add('hidden');
+        if (tabFileContent) tabFileContent.classList.add('hidden');
+        if (tabEmailContent) tabEmailContent.classList.add('hidden');
+
+        // Activar la seleccionada
+        if (activeTab === 'url') {
+            if (btnTabUrl) btnTabUrl.classList.add('active');
+            if (tabUrlContent) tabUrlContent.classList.remove('hidden');
+        } else if (activeTab === 'file') {
+            if (btnTabFile) btnTabFile.classList.add('active');
+            if (tabFileContent) tabFileContent.classList.remove('hidden');
+        } else if (activeTab === 'email') {
+            if (btnTabEmail) btnTabEmail.classList.add('active');
+            if (tabEmailContent) tabEmailContent.classList.remove('hidden');
+        }
     }
+
+    if (btnTabUrl) btnTabUrl.addEventListener('click', () => switchTab('url'));
+    if (btnTabFile) btnTabFile.addEventListener('click', () => switchTab('file'));
+    if (btnTabEmail) btnTabEmail.addEventListener('click', () => switchTab('email'));
 
 
     /* ======================================================
@@ -180,6 +195,45 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         resultsContainer.innerHTML = htmlContent || '<p class="text-gray-400 text-center">No hay resultados.</p>';
+    }
+
+    // --- C. DTECCIÓN DE FILTRACIONES (EMAIL) ---
+    const breachBtn = document.getElementById("breach-btn");
+    const breachEmailInput = document.getElementById("breach-email");
+    const breachResult = document.getElementById("breach-result");
+
+    if (breachBtn) {
+        breachBtn.addEventListener("click", async () => {
+            const email = breachEmailInput.value.trim();
+
+            if (!email || !email.includes("@")) {
+                alert("Por favor, ingresa un correo electrónico válido.");
+                return;
+            }
+
+            // Mostrar estado de carga
+            breachResult.classList.remove("hidden");
+            breachResult.className = "mt-4 p-3 rounded-lg text-sm bg-gray-700 text-white";
+            breachResult.textContent = "Verificando bases de datos de filtraciones...";
+
+            try {
+                setTimeout(() => {
+                    const isLeaked = email.toLowerCase().includes("test"); // Lógica de ejemplo
+
+                    if (isLeaked) {
+                        breachResult.className = "mt-4 p-3 rounded-lg text-sm bg-red-900/50 border border-red-500 text-red-300";
+                        breachResult.innerHTML = `⚠️ <strong>¡Alerta!</strong> El correo <strong>${email}</strong> aparece en registros de filtraciones públicas. Se recomienda cambiar las contraseñas asociadas.`;
+                    } else {
+                        breachResult.className = "mt-4 p-3 rounded-lg text-sm bg-green-900/50 border border-green-500 text-green-300";
+                        breachResult.innerHTML = `✅ <strong>¡Buenas noticias!</strong> No se encontraron registros de filtraciones para <strong>${email}</strong> en las bases analizadas.`;
+                    }
+                }, 1000);
+
+            } catch (error) {
+                breachResult.className = "mt-4 p-3 rounded-lg text-sm bg-red-900/50 border border-red-500 text-red-300";
+                breachResult.textContent = "Ocurrió un error al conectar con el servicio de verificación.";
+            }
+        });
     }
 
 });

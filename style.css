@@ -299,3 +299,89 @@ h2 {
     background: #0056b3;
 }
 
+/* Estilos para el módulo de Detección de Filtraciones */
+.breach-container {
+    display: flex;
+    justify-content: center;
+    padding: 2rem;
+    font-family: inherit;
+}
+
+.breach-card {
+    background: #1e1e2f;
+    color: #ffffff;
+    padding: 2rem;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 500px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.breach-card h2 {
+    margin-bottom: 0.5rem;
+    font-size: 1.5rem;
+    color: #00ffcc;
+}
+
+.breach-card p {
+    font-size: 0.9rem;
+    color: #b3b3c1;
+    margin-bottom: 1.5rem;
+}
+
+.breach-input-group {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.breach-input-group input {
+    flex: 1;
+    padding: 0.75rem;
+    border-radius: 6px;
+    border: 1px solid #444;
+    background: #2b2b3d;
+    color: #fff;
+    outline: none;
+}
+
+.breach-input-group input:focus {
+    border-color: #00ffcc;
+}
+
+.breach-input-group button {
+    padding: 0.75rem 1.25rem;
+    border: none;
+    border-radius: 6px;
+    background: #00ffcc;
+    color: #1e1e2f;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.breach-input-group button:hover {
+    background: #00b38f;
+}
+
+.breach-result {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    border-radius: 6px;
+    font-size: 0.95rem;
+}
+
+.breach-result.hidden {
+    display: none;
+}
+
+.breach-result.safe {
+    background: rgba(0, 255, 100, 0.1);
+    border: 1px solid #00ff64;
+    color: #00ff64;
+}
+
+.breach-result.danger {
+    background: rgba(255, 75, 75, 0.1);
+    border: 1px solid #ff4b4b;
+    color: #ff4b4b;
+}

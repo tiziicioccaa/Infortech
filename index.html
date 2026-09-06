@@ -39,10 +39,11 @@
                 Analizador Infortech
             </h1>
             
-            <!-- Pestañas (Tabs) -->
+            <!-- Pestañas (Tabs) con 3 opciones -->
             <div class="flex border-b border-gray-700 mb-6">
                 <button id="btnTabUrl" class="tab-btn active flex-1 text-center py-2 text-lg">Analizar URL</button>
                 <button id="btnTabFile" class="tab-btn flex-1 text-center py-2 text-lg">Analizar Archivo</button>
+                <button id="btnTabEmail" class="tab-btn flex-1 text-center py-2 text-lg">Verificar Filtraciones</button>
             </div>
 
             <!-- Contenido: Analizar URL -->
@@ -64,6 +65,20 @@
                     <button id="analyzeFileButton" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 shadow-lg w-full">
                         Analizar Archivo
                     </button>
+                </div>
+            </div>
+
+            <!-- Contenido: Verificar Filtraciones (Oculto por defecto y adaptado como pestaña) -->
+            <div id="tabEmailContent" class="hidden">
+                <p class="text-lg md:text-xl mb-4 h-8">Ingresa tu correo electrónico para verificar filtraciones</p>
+                <div class="flex flex-col sm:flex-row gap-2">
+                    <input type="email" id="breach-email" placeholder="ejemplo@correo.com" class="w-full bg-gray-700 text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400" required>
+                    <button id="breach-btn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300 shadow-lg whitespace-nowrap">
+                        Verificar
+                    </button>
+                </div>
+                <div id="breach-result" class="mt-4 p-3 rounded-lg hidden text-sm">
+                    <!-- Aquí se inyectará el resultado -->
                 </div>
             </div>
 
