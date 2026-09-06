@@ -90,7 +90,7 @@ header p {
 }
 
 .nav-btn svg {
-    margin-bottom: 2px; /* Alineación visual del icono */
+    margin-bottom: 2px;
 }
 
 /* --- 3. Contenedor Principal de Herramientas --- */
@@ -99,11 +99,11 @@ main {
 }
 
 .tool-content {
-    display: none; /* Oculto por defecto */
+    display: none;
 }
 
 .tool-content.active {
-    display: block; /* Visible cuando está activo */
+    display: block;
 }
 
 .tool-description {
@@ -151,237 +151,22 @@ h2 {
     background: #0056b3;
 }
 
-/* --- 5. HERRAMIENTA 1: Analizador de Enlaces --- */
-#analysis-results .result-card {
-    background: #252525;
-    padding: 1.5rem;
-    border-radius: 8px;
-    margin-bottom: 1rem;
-    border-left: 5px solid var(--border-color);
-    transition: all 0.3s ease;
+/* --- 5. Estilos adicionales para la sección de Autenticación (Cuenta) --- */
+#tabAuthContent form {
+    animation: fadeIn 0.3s ease-in-out;
 }
 
-#analysis-results .result-label {
-    display: block;
-    font-size: 0.8rem;
-    font-weight: 700;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    margin-bottom: 0.25rem;
+#userProfile {
+    animation: fadeIn 0.3s ease-in-out;
 }
 
-#analysis-results .result-value {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: white;
-    margin-bottom: 0.5rem;
-    word-break: break-all;
-}
-
-#analysis-results .result-explanation {
-    font-size: 0.9rem;
-}
-
-/* Colores de estado del analizador */
-#analysis-results .result-card.safe {
-    border-left-color: var(--safe-color);
-}
-#analysis-results .result-card.warning {
-    border-left-color: var(--warning-color);
-}
-#analysis-results .result-card.danger {
-    border-left-color: var(--danger-color);
-}
-
-/* --- 6. HERRAMIENTA 2: Juego de Phishing --- */
-.challenge-card {
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    overflow: hidden;
-    margin-bottom: 1.5rem;
-}
-
-.challenge-card h3 {
-    padding: 1rem;
-    background: #252525;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.challenge-card img {
-    width: 100%;
-    height: auto;
-    display: block;
-}
-
-.game-controls {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-}
-
-.game-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    font-size: 1.1rem;
-    font-weight: 700;
-    padding: 1rem;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.game-btn.real {
-    background-color: var(--safe-color);
-    color: white;
-}
-.game-btn.real:hover {
-    background-color: #388e3c;
-}
-
-.game-btn.phishing {
-    background-color: var(--danger-color);
-    color: white;
-}
-.game-btn.phishing:hover {
-    background-color: #c62828;
-}
-
-/* Tarjeta de Feedback (Correcto/Incorrecto) */
-.feedback-card {
-    padding: 1.5rem;
-    border-radius: 8px;
-    text-align: center;
-}
-
-.feedback-card.correct {
-    background: rgba(67, 160, 71, 0.2);
-    border: 1px solid var(--safe-color);
-}
-.feedback-card.correct h4 {
-    color: var(--safe-color);
-}
-
-.feedback-card.incorrect {
-    background: rgba(229, 57, 53, 0.2);
-    border: 1px solid var(--danger-color);
-}
-.feedback-card.incorrect h4 {
-    color: var(--danger-color);
-}
-
-.feedback-card h4 {
-    font-size: 1.5rem;
-    margin-bottom: 0.5rem;
-}
-
-.feedback-card p {
-    margin-bottom: 1.5rem;
-    font-size: 1rem;
-}
-
-#btn-next {
-    background: var(--primary-color);
-    color: white;
-    border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: 8px;
-    font-size: 1rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-}
-
-#btn-next:hover {
-    background: #0056b3;
-}
-
-/* Estilos para el módulo de Detección de Filtraciones */
-.breach-container {
-    display: flex;
-    justify-content: center;
-    padding: 2rem;
-    font-family: inherit;
-}
-
-.breach-card {
-    background: #1e1e2f;
-    color: #ffffff;
-    padding: 2rem;
-    border-radius: 12px;
-    width: 100%;
-    max-width: 500px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-}
-
-.breach-card h2 {
-    margin-bottom: 0.5rem;
-    font-size: 1.5rem;
-    color: #00ffcc;
-}
-
-.breach-card p {
-    font-size: 0.9rem;
-    color: #b3b3c1;
-    margin-bottom: 1.5rem;
-}
-
-.breach-input-group {
-    display: flex;
-    gap: 0.5rem;
-}
-
-.breach-input-group input {
-    flex: 1;
-    padding: 0.75rem;
-    border-radius: 6px;
-    border: 1px solid #444;
-    background: #2b2b3d;
-    color: #fff;
-    outline: none;
-}
-
-.breach-input-group input:focus {
-    border-color: #00ffcc;
-}
-
-.breach-input-group button {
-    padding: 0.75rem 1.25rem;
-    border: none;
-    border-radius: 6px;
-    background: #00ffcc;
-    color: #1e1e2f;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-
-.breach-input-group button:hover {
-    background: #00b38f;
-}
-
-.breach-result {
-    margin-top: 1.5rem;
-    padding: 1rem;
-    border-radius: 6px;
-    font-size: 0.95rem;
-}
-
-.breach-result.hidden {
-    display: none;
-}
-
-.breach-result.safe {
-    background: rgba(0, 255, 100, 0.1);
-    border: 1px solid #00ff64;
-    color: #00ff64;
-}
-
-.breach-result.danger {
-    background: rgba(255, 75, 75, 0.1);
-    border: 1px solid #ff4b4b;
-    color: #ff4b4b;
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
