@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     /* ======================================================
-       1. LÓGICA DE PESTAÑAS (8 MÓDULOS INCLUYENDO AUTH)
+       1. LÓGICA DE PESTAÑAS (8 MÓDULOS)
        ====================================================== */
     const tabs = {
         url: { btn: document.getElementById('btnTabUrl'), content: document.getElementById('tabUrlContent') },
@@ -48,32 +48,65 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     /* ======================================================
-       2. MÓDULO DE AUTENTICACIÓN (LOGIN / REGISTRO)
+       2. MÓDULO DE AUTENTICACIÓN Y CONTROL DE ACCESO
        ====================================================== */
+    const authSection = document.getElementById('authSection');
+    const mainAppContent = document.getElementById('mainAppContent');
+
     const loginForm = document.getElementById('loginForm');
     const registerForm = document.getElementById('registerForm');
+    const forgotForm = document.getElementById('forgotForm');
+
     const toRegister = document.getElementById('toRegister');
-    const toLogin = document.getElementById('toLogin');
+    const toLoginFromReg = document.getElementById('toLoginFromReg');
+    const toForgot = document.getElementById('toForgot');
+    const toLoginFromForgot = document.getElementById('toLoginFromForgot');
+
     const authMessage = document.getElementById('authMessage');
-    const authFormsContainer = document.getElementById('authFormsContainer');
-    const userProfile = document.getElementById('userProfile');
     const profileName = document.getElementById('profileName');
     const profileEmail = document.getElementById('profileEmail');
+    const profileImage = document.getElementById('profileImage');
+    const profileIcon = document.getElementById('profileIcon');
+    const avatarInput = document.getElementById('avatarInput');
+    const navAvatar = document.getElementById('navAvatar');
+    const navUserText = document.getElementById('navUserText');
     const logoutBtn = document.getElementById('logoutBtn');
 
-    // Cambiar vistas entre Login y Registro
+    // Transiciones entre formularios
     if (toRegister) {
         toRegister.addEventListener('click', (e) => {
             e.preventDefault();
             loginForm.classList.add('hidden');
+            forgotForm.classList.add('hidden');
             registerForm.classList.remove('hidden');
             hideAuthMsg();
         });
     }
 
-    if (toLogin) {
-        toLogin.addEventListener('click', (e) => {
+    if (toLoginFromReg) {
+        toLoginFromReg.addEventListener('click', (e) => {
             e.preventDefault();
+            registerForm.classList.add('hidden');
+            forgotForm.classList.add('hidden');
+            loginForm.classList.remove('hidden');
+            hideAuthMsg();
+        });
+    }
+
+    if (toForgot) {
+        toForgot.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginForm.classList.add('hidden');
+            registerForm.classList.add('hidden');
+            forgotForm.classList.remove('hidden');
+            hideAuthMsg();
+        });
+    }
+
+    if (toLoginFromForgot) {
+        toLoginFromForgot.addEventListener('click', (e) => {
+            e.preventDefault();
+            forgotForm.classList.add('hidden');
             registerForm.classList.add('hidden');
             loginForm.classList.remove('hidden');
             hideAuthMsg();
@@ -105,7 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            users.push({ user, email, pass });
+            users.push({ user, email, pass, avatar: null });
             localStorage.setItem('infortech_users', JSON.stringify(users));
 
             showAuthMsg("¡Cuenta creada exitosamente! Ahora inicia sesión.");
@@ -139,6 +172,98 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Olvidé mi Contraseña (Recuperar / Cambiar)
+    if (forgotForm) {
+        forgotForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('forgotEmail').value.trim().toLowerCase();
+            const newPass = document.getElementById('forgotNewPass').value.trim();
+
+            let users = JSON.parse(localStorage.getItem('infortech_users')) || [];
+            const userIndex = users.findIndex(u => u.email === email);
+
+            if (userIndex === -1) {
+                showAuthMsg("No existe ninguna cuenta vinculada a este correo.", true);
+                return;
+            }
+
+            if (newPass) {
+                users[userIndex].pass = newPass;
+                localStorage.setItem('infortech_users', JSON.stringify(users));
+                
+                // Actualizar sesión si es el usuario activo
+                const currentSession = JSON.parse(localStorage.getItem('infortech_session'));
+                if (currentSession && currentSession.email === email) {
+                    currentSession.pass = newPass;
+                    localStorage.setItem('infortech_session', JSON.stringify(currentSession));
+                }
+
+                showAuthMsg("¡Contraseña actualizada con éxito! Ya puedes iniciar sesión.");
+            } else {
+                showAuthMsg(`Tu contraseña actual es: "${users[userIndex].pass}"`);
+            }
+
+            forgotForm.reset();
+        });
+    }
+
+    // Cargar Foto de Perfil (Base64)
+    if (avatarInput) {
+        avatarInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            if (file.size > 2 * 1024 * 1024) {
+                alert("La imagen es muy grande. Elige una menor a 2MB.");
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function (evt) {
+                const base64Image = evt.target.result;
+
+                // Guardar en la sesión
+                let session = JSON.parse(localStorage.getItem('infortech_session'));
+                if (session) {
+                    session.avatar = base64Image;
+                    localStorage.setItem('infortech_session', JSON.stringify(session));
+
+                    // Actualizar en el arreglo de usuarios
+                    let users = JSON.parse(localStorage.getItem('infortech_users')) || [];
+                    const index = users.findIndex(u => u.email === session.email);
+                    if (index !== -1) {
+                        users[index].avatar = base64Image;
+                        localStorage.setItem('infortech_users', JSON.stringify(users));
+                    }
+
+                    updateProfileUI(session);
+                }
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    // Actualizar UI del Perfil
+    function updateProfileUI(session) {
+        profileName.textContent = session.user;
+        profileEmail.textContent = session.email;
+        navUserText.textContent = session.user;
+
+        if (session.avatar) {
+            profileImage.src = session.avatar;
+            profileImage.classList.remove('hidden');
+            profileIcon.classList.add('hidden');
+
+            navAvatar.src = session.avatar;
+            navAvatar.classList.remove('hidden');
+        } else {
+            profileImage.classList.add('hidden');
+            profileIcon.classList.remove('hidden');
+
+            navAvatar.classList.add('hidden');
+        }
+    }
+
     // Logout
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {
@@ -147,21 +272,24 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Verificar Estado de Sesión al cargar
+    // Verificar Estado de Sesión al cargar (Muro Mandatorio)
     function checkSession() {
         const session = JSON.parse(localStorage.getItem('infortech_session'));
-        const btnAuth = document.getElementById('btnTabAuth');
 
         if (session) {
-            authFormsContainer.classList.add('hidden');
-            userProfile.classList.remove('hidden');
-            profileName.textContent = session.user;
-            profileEmail.textContent = session.email;
-            if (btnAuth) btnAuth.textContent = `👤 ${session.user}`;
+            authSection.classList.add('hidden');
+            mainAppContent.classList.remove('hidden');
+            mainAppContent.classList.add('flex');
+            updateProfileUI(session);
+            switchTab('url'); // Abrir pestaña por defecto al entrar
         } else {
-            authFormsContainer.classList.remove('hidden');
-            userProfile.classList.add('hidden');
-            if (btnAuth) btnAuth.textContent = "👤 Cuenta";
+            authSection.classList.remove('hidden');
+            mainAppContent.classList.add('hidden');
+            mainAppContent.classList.remove('flex');
+            loginForm.classList.remove('hidden');
+            registerForm.classList.add('hidden');
+            forgotForm.classList.add('hidden');
+            hideAuthMsg();
         }
     }
 
