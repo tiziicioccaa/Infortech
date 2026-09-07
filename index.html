@@ -4,227 +4,134 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cyberscan</title>
-    
-    <!-- CDN de Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Enlace a tu archivo CSS -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <div class="main-card">
-        <h1 class="title-cyberscan">
-            Cyberscan
-        </h1>
+        <!-- Título con letras en movimiento de color -->
+        <h1 class="title-cyberscan">Cyberscan</h1>
 
         <!-- =======================================================
-             1. SECCIÓN DE AUTENTICACIÓN MANDATORIA
+             1. AUTENTICACIÓN
              ======================================================= -->
-        <div id="authSection" class="w-full">
-            <div id="authFormsContainer" class="bg-violet-box p-6 rounded-xl max-w-md mx-auto w-full shadow-lg">
+        <div id="authSection">
+            <div class="inner-box">
                 
-                <!-- Login -->
-                <form id="loginForm" class="flex flex-col gap-4">
-                    <h2 class="text-2xl font-bold text-center text-purple-300 mb-2">Iniciar Sesión</h2>
-                    <div class="flex flex-col gap-1">
-                        <label class="text-xs text-purple-200">Correo Electrónico</label>
-                        <input type="email" id="loginEmail" required class="w-full">
+                <!-- Formulario Login -->
+                <form id="loginForm">
+                    <h2 class="form-title">Iniciar Sesión</h2>
+                    <div class="input-group">
+                        <label>Correo Electrónico</label>
+                        <input type="email" id="loginEmail" required placeholder="correo@ejemplo.com">
                     </div>
-                    <div class="flex flex-col gap-1">
-                        <label class="text-xs text-purple-200">Contraseña</label>
-                        <input type="password" id="loginPass" required class="w-full">
+                    <div class="input-group">
+                        <label>Contraseña</label>
+                        <input type="password" id="loginPass" required placeholder="••••••••">
                     </div>
-                    <div class="text-right">
-                        <a href="#" id="toForgot" class="text-xs text-purple-300 hover:underline">¿Olvidaste tu contraseña?</a>
+                    <div style="text-align: right; margin-bottom: 0.5rem;">
+                        <a href="#" id="toForgot" class="link-violet">¿Olvidaste tu contraseña?</a>
                     </div>
-                    <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 rounded-lg transition shadow-md mt-2">
-                        Entrar
-                    </button>
-                    <p class="text-xs text-center text-purple-300 mt-2">¿No tienes una cuenta? <a href="#" id="toRegister" class="text-purple-400 font-bold hover:underline">Regístrate aquí</a></p>
+                    <button type="submit" class="btn-violet">Entrar</button>
+                    <p class="text-center link-violet mt-2" style="font-size: 0.8rem;">
+                        ¿No tienes una cuenta? <a href="#" id="toRegister" class="link-violet" style="font-weight: bold;">Regístrate aquí</a>
+                    </p>
                 </form>
 
-                <!-- Registro -->
-                <form id="registerForm" class="hidden flex flex-col gap-4">
-                    <h2 class="text-2xl font-bold text-center text-purple-300 mb-2">Crear Cuenta</h2>
-                    <div class="flex flex-col gap-1">
-                        <label class="text-xs text-purple-200">Nombre de Usuario</label>
-                        <input type="text" id="regUser" required class="w-full">
+                <!-- Formulario Registro -->
+                <form id="registerForm" class="hidden">
+                    <h2 class="form-title" style="color: #f0abfc;">Crear Cuenta</h2>
+                    <div class="input-group">
+                        <label>Nombre de Usuario</label>
+                        <input type="text" id="regUser" required>
                     </div>
-                    <div class="flex flex-col gap-1">
-                        <label class="text-xs text-purple-200">Correo Electrónico</label>
-                        <input type="email" id="regEmail" required class="w-full">
+                    <div class="input-group">
+                        <label>Correo Electrónico</label>
+                        <input type="email" id="regEmail" required>
                     </div>
-                    <div class="flex flex-col gap-1">
-                        <label class="text-xs text-purple-200">Contraseña</label>
-                        <input type="password" id="regPass" required class="w-full">
+                    <div class="input-group">
+                        <label>Contraseña</label>
+                        <input type="password" id="regPass" required>
                     </div>
-                    <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 rounded-lg transition shadow-md mt-2">
-                        Crear Cuenta
-                    </button>
-                    <p class="text-xs text-center text-purple-300 mt-2">¿Ya tienes cuenta? <a href="#" id="toLoginFromReg" class="text-purple-400 font-bold hover:underline">Inicia Sesión</a></p>
+                    <button type="submit" class="btn-violet">Crear Cuenta</button>
+                    <p class="text-center link-violet mt-2" style="font-size: 0.8rem;">
+                        ¿Ya tienes cuenta? <a href="#" id="toLoginFromReg" class="link-violet" style="font-weight: bold;">Inicia Sesión</a>
+                    </p>
                 </form>
 
-                <!-- Olvidé mi Contraseña -->
-                <form id="forgotForm" class="hidden flex flex-col gap-4">
-                    <h2 class="text-2xl font-bold text-center text-purple-300 mb-2">Recuperar Contraseña</h2>
-                    <p class="text-xs text-purple-200 text-center mb-2">Ingresa tu correo para recuperar o actualizar tu clave.</p>
-                    <div class="flex flex-col gap-1">
-                        <label class="text-xs text-purple-200">Correo Electrónico</label>
-                        <input type="email" id="forgotEmail" required class="w-full">
+                <!-- Formulario Recuperar -->
+                <form id="forgotForm" class="hidden">
+                    <h2 class="form-title" style="color: #fde047;">Recuperar Clave</h2>
+                    <div class="input-group">
+                        <label>Correo Electrónico</label>
+                        <input type="email" id="forgotEmail" required>
                     </div>
-                    <div class="flex flex-col gap-1">
-                        <label class="text-xs text-purple-200">Nueva Contraseña (Opcional)</label>
-                        <input type="password" id="forgotNewPass" placeholder="Déjalo en blanco para solo ver la actual" class="w-full">
+                    <div class="input-group">
+                        <label>Nueva Contraseña (Opcional)</label>
+                        <input type="password" id="forgotNewPass" placeholder="O déjalo en blanco para ver la actual">
                     </div>
-                    <button type="submit" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2.5 rounded-lg transition shadow-md mt-2">
-                        Recuperar / Cambiar
-                    </button>
-                    <p class="text-xs text-center text-purple-300 mt-2"><a href="#" id="toLoginFromForgot" class="text-purple-400 font-bold hover:underline">Volver a Iniciar Sesión</a></p>
+                    <button type="submit" class="btn-violet">Recuperar / Cambiar</button>
+                    <p class="text-center link-violet mt-2">
+                        <a href="#" id="toLoginFromForgot" class="link-violet">Volver a Iniciar Sesión</a>
+                    </p>
                 </form>
 
-                <p id="authMessage" class="text-center text-xs mt-3 hidden"></p>
+                <p id="authMessage" class="text-center hidden" style="font-size: 0.85rem; margin-top: 0.8rem;"></p>
             </div>
         </div>
 
         <!-- =======================================================
-             2. CONTENIDO PRINCIPAL
+             2. APLICACIÓN PRINCIPAL
              ======================================================= -->
-        <div id="mainAppContent" class="hidden flex-col">
+        <div id="mainAppContent" class="hidden">
             
-            <!-- Pestañas -->
-            <div class="flex flex-wrap border-b border-purple-900/60 mb-6 gap-2">
-                <button id="btnTabUrl" class="tab-btn active text-sm">URL</button>
-                <button id="btnTabFile" class="tab-btn text-sm">Archivo</button>
-                <button id="btnTabEmail" class="tab-btn text-sm">Filtraciones</button>
-                <button id="btnTabGen" class="tab-btn text-sm">Generador</button>
-                <button id="btnTabVal" class="tab-btn text-sm">Validador Pass</button>
-                <button id="btnTabHistory" class="tab-btn text-sm">Historial</button>
-                <button id="btnTabGlossary" class="tab-btn text-sm">Glosario</button>
-                <button id="btnTabAuth" class="tab-btn text-sm text-purple-300 font-bold flex items-center gap-2">
-                    <img id="navAvatar" src="" class="w-5 h-5 rounded-full object-cover hidden">
+            <div class="tab-nav">
+                <button id="btnTabUrl" class="tab-btn active">URL</button>
+                <button id="btnTabFile" class="tab-btn">Archivo</button>
+                <button id="btnTabEmail" class="tab-btn">Filtraciones</button>
+                <button id="btnTabGen" class="tab-btn">Generador Claves</button>
+                <button id="btnTabVal" class="tab-btn">Validador Pass</button>
+                <button id="btnTabHistory" class="tab-btn">Historial</button>
+                <button id="btnTabGlossary" class="tab-btn">Glosario</button>
+                <button id="btnTabAuth" class="tab-btn" style="color: #f0abfc; font-weight: bold;">
                     <span id="navUserText">👤 Cuenta</span>
                 </button>
             </div>
 
-            <!-- Paneles -->
-            <div id="activeTabContainer" class="flex flex-col flex-grow">
-                <!-- URL -->
+            <div id="activeTabContainer">
+                <!-- Panel URL -->
                 <div id="tabUrlContent" class="tab-pane">
-                    <p class="text-lg mb-4 text-purple-200">Pega una URL para analizar</p>
-                    <div class="flex flex-col sm:flex-row gap-2">
-                        <input type="text" id="urlInput" placeholder="https://ejemplo.com" class="w-full">
-                        <button id="analyzeButton" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded-lg transition">
-                            Analizar
-                        </button>
+                    <p style="margin-bottom: 0.8rem;">Pega una URL para analizar la seguridad:</p>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <input type="text" id="urlInput" placeholder="https://ejemplo.com">
+                        <button id="analyzeButton" class="btn-violet" style="width: auto; padding: 0 1.5rem; margin:0;">Analizar</button>
                     </div>
                 </div>
 
-                <!-- Archivo -->
+                <!-- Panel Archivo -->
                 <div id="tabFileContent" class="tab-pane hidden">
-                    <p class="text-lg mb-4 text-purple-200">Sube un archivo (Max 25MB)</p>
-                    <div class="flex flex-col gap-4">
-                        <input type="file" id="fileInput" class="w-full">
-                        <button id="analyzeFileButton" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded-lg transition">
-                            Analizar Archivo
-                        </button>
-                    </div>
+                    <p style="margin-bottom: 0.8rem;">Sube un archivo para escanear en busca de amenazas:</p>
+                    <input type="file" id="fileInput" style="margin-bottom: 0.8rem;">
+                    <button id="analyzeFileButton" class="btn-violet">Analizar Archivo</button>
                 </div>
 
-                <!-- Filtraciones -->
-                <div id="tabEmailContent" class="tab-pane hidden">
-                    <p class="text-lg mb-4 text-purple-200">Verifica si tu correo fue expuesto</p>
-                    <div class="flex flex-col sm:flex-row gap-2">
-                        <input type="email" id="breach-email" placeholder="ejemplo@correo.com" class="w-full">
-                        <button id="breach-btn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded-lg transition">
-                            Verificar
-                        </button>
-                    </div>
-                    <div id="breach-result" class="mt-4 p-3 rounded-lg hidden text-sm"></div>
-                </div>
-
-                <!-- Generador -->
-                <div id="tabGenContent" class="tab-pane hidden">
-                    <p class="text-lg mb-4 text-purple-200">Generador de Claves Seguras</p>
-                    <div class="flex flex-col gap-4 bg-violet-box p-4 rounded-lg">
-                        <div class="flex items-center gap-2">
-                            <input type="text" id="genPasswordOutput" readonly class="w-full text-purple-300 font-mono">
-                            <button id="copyGenPass" class="bg-purple-600 text-white px-4 py-2 rounded-lg">Copiar</button>
-                        </div>
-                        <div class="flex flex-col gap-2 text-sm text-purple-200">
-                            <label>Longitud: <span id="lengthVal">16</span></label>
-                            <input type="range" id="genLength" min="8" max="32" value="16" class="accent-purple-500">
-                            <div class="flex gap-4 mt-2">
-                                <label><input type="checkbox" id="genSymbols" checked class="accent-purple-500"> Símbolos (!@#)</label>
-                                <label><input type="checkbox" id="genNumbers" checked class="accent-purple-500"> Números (0-9)</label>
-                            </div>
-                        </div>
-                        <button id="generatePassBtn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 rounded-lg mt-2">Generar</button>
-                    </div>
-                </div>
-
-                <!-- Validador -->
-                <div id="tabValContent" class="tab-pane hidden">
-                    <p class="text-lg mb-4 text-purple-200">Analizador de Fortaleza de Contraseña</p>
-                    <div class="flex flex-col gap-3">
-                        <input type="password" id="valPasswordInput" placeholder="Escribe una contraseña..." class="w-full">
-                        <div class="w-full bg-purple-950 h-3 rounded-full overflow-hidden border border-purple-800">
-                            <div id="valStrengthBar" class="h-full w-0 transition-all duration-300 bg-red-500"></div>
-                        </div>
-                        <p id="valStrengthText" class="text-sm text-purple-300">Ingresa una clave para evaluar.</p>
-                    </div>
-                </div>
-
-                <!-- Historial -->
-                <div id="tabHistoryContent" class="tab-pane hidden">
-                    <div class="flex justify-between items-center mb-4">
-                        <p class="text-lg text-purple-200">Historial de Análisis</p>
-                        <button id="clearHistoryBtn" class="text-xs bg-red-600/50 hover:bg-red-600 text-red-200 px-3 py-1 rounded-lg">Borrar Historial</button>
-                    </div>
-                    <div id="historyListContainer" class="bg-violet-box p-3 rounded-lg max-h-[300px] overflow-y-auto space-y-2 text-sm">
-                        <p class="text-purple-400 text-center">No hay análisis registrados todavía.</p>
-                    </div>
-                </div>
-
-                <!-- Glosario -->
-                <div id="tabGlossaryContent" class="tab-pane hidden">
-                    <p class="text-lg mb-4 text-purple-200">Glosario de Ciberseguridad</p>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[350px] overflow-y-auto">
-                        <div class="bg-violet-box p-3 rounded-lg border border-purple-800/40">
-                            <h4 class="font-bold text-purple-300">Phishing</h4>
-                            <p class="text-xs text-purple-200 mt-1">Suplantación de identidad mediante correos o webs falsas para robar credenciales.</p>
-                        </div>
-                        <div class="bg-violet-box p-3 rounded-lg border border-purple-800/40">
-                            <h4 class="font-bold text-purple-300">Ransomware</h4>
-                            <p class="text-xs text-purple-200 mt-1">Software malicioso que cifra tus archivos exigiendo un rescate económico.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Perfil -->
+                <!-- Panel Perfil -->
                 <div id="tabAuthContent" class="tab-pane hidden">
-                    <div id="userProfile" class="bg-violet-box p-6 rounded-xl max-w-md mx-auto w-full text-center flex flex-col items-center border border-purple-800/40">
-                        <div class="relative group w-24 h-24 mb-3">
-                            <img id="profileImage" src="" class="w-24 h-24 rounded-full object-cover border-2 border-purple-500 hidden" alt="Foto">
-                            <div id="profileIcon" class="w-24 h-24 rounded-full bg-purple-950 flex items-center justify-center text-5xl border-2 border-purple-700">👤</div>
-                            <label for="avatarInput" class="absolute inset-0 bg-black/60 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 cursor-pointer transition text-xs font-bold text-white">
-                                Cambiar Foto
-                            </label>
-                            <input type="file" id="avatarInput" accept="image/*" class="hidden">
-                        </div>
-                        <h3 class="text-2xl font-bold mb-1 text-purple-200" id="profileName">Usuario</h3>
-                        <p class="text-purple-400 text-sm mb-6" id="profileEmail">correo@ejemplo.com</p>
-                        <button id="logoutBtn" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-lg transition w-full shadow-md">
-                            Cerrar Sesión
-                        </button>
+                    <div class="inner-box text-center">
+                        <h3 id="profileName" style="font-size: 1.4rem; color: #f0abfc; margin-bottom: 0.3rem;">Usuario</h3>
+                        <p id="profileEmail" style="color: #c084fc; font-size: 0.9rem; margin-bottom: 1.5rem;">correo@ejemplo.com</p>
+                        <button id="logoutBtn" class="btn-violet" style="background: linear-gradient(90deg, #dc2626, #b91c1c);">Cerrar Sesión</button>
                     </div>
                 </div>
-
             </div>
 
-            <!-- Resultados Globales -->
-            <div id="globalScanResultsWrapper" class="mt-6">
-                <p id="analyzerStatus" class="text-sm text-purple-300 mb-2"></p>
-                <div id="resultsContainer" class="bg-violet-box p-4 rounded-lg min-h-[150px] text-purple-100">
-                    <p class="text-center text-purple-400 text-sm">Los resultados del escáner aparecerán aquí...</p>
+            <!-- Resultados -->
+            <div id="globalScanResultsWrapper" style="margin-top: 1.5rem;">
+                <p id="analyzerStatus" style="font-size: 0.85rem; color: #d8b4fe; margin-bottom: 0.5rem;"></p>
+                <div id="resultsContainer" style="background: rgba(10,5,20,0.8); padding: 1rem; border-radius: 0.8rem; border: 1px solid rgba(168,85,247,0.2); min-height: 100px;">
+                    <p class="text-center" style="color: #a855f7; font-size: 0.9rem;">Los resultados del escaneo aparecerán aquí...</p>
                 </div>
             </div>
 
@@ -232,6 +139,7 @@
 
     </div>
 
+    <!-- Script de lógica -->
     <script src="script.js" defer></script>
 </body>
 </html>
