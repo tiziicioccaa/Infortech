@@ -1,199 +1,172 @@
-/* --- ANIMACIONES DE MOVIMIENTO --- */
-
-/* Movimiento constante del fondo */
-@keyframes animatedBg {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+/* --- 1. Configuración Global y Tema Oscuro --- */
+:root {
+    --bg-color: #121212; /* Fondo oscuro */
+    --surface-color: #1e1e1e; /* Color de las tarjetas */
+    --primary-color: #007bff; /* Azul brillante (para botones) */
+    --text-color: #e0e0e0; /* Texto principal (blanco suave) */
+    --text-muted: #888; /* Texto secundario */
+    --border-color: #333;
+    --danger-color: #e53935; /* Rojo para alertas */
+    --warning-color: #fdd835; /* Amarillo para advertencias */
+    --safe-color: #43a047; /* Verde para cosas seguras */
 }
 
-/* Movimiento constante de color en las letras del Título Cyberscan */
-@keyframes textGlowMove {
-    0% {
-        background-position: 0% 50%;
-        filter: drop-shadow(0 0 10px rgba(168, 85, 247, 0.8));
-    }
-    50% {
-        background-position: 100% 50%;
-        filter: drop-shadow(0 0 20px rgba(236, 72, 153, 0.9));
-    }
-    100% {
-        background-position: 0% 50%;
-        filter: drop-shadow(0 0 10px rgba(168, 85, 247, 0.8));
-    }
-}
-
-/* --- ESTILOS GENERALES Y BASE --- */
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
 }
 
 body {
-    /* Fondo Violeta / Púrpura Fluido en Movimiento Continua */
-    background: linear-gradient(-45deg, #090214, #18082c, #3b0764, #581c87, #2e1065, #0f172a) !important;
-    background-size: 400% 400% !important;
-    animation: animatedBg 10s ease infinite !important;
-    color: #f3e8ff;
-    min-height: 100vh;
+    font-family: 'Roboto', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    line-height: 1.6;
     display: flex;
-    align-items: center;
     justify-content: center;
-    padding: 1.5rem;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding: 2rem 1rem;
 }
 
-/* Tarjeta Contenedora Principal (Estilo Cristal Violeta) */
-.main-card {
-    background: rgba(20, 10, 35, 0.85);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(192, 132, 252, 0.3);
-    border-radius: 1.5rem;
-    padding: 2.5rem 2rem;
+.container {
     width: 100%;
-    max-width: 52rem;
-    box-shadow: 0 0 40px rgba(147, 51, 234, 0.35);
+    max-width: 800px;
+    background-color: var(--surface-color);
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
 }
 
-/* TÍTULO CYBERSCAN (Color en movimiento continuo) */
-.title-cyberscan {
-    font-size: 3.2rem;
-    font-weight: 900;
+/* --- 2. Encabezado y Navegación de Pestañas --- */
+header {
+    background-color: #181818;
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid var(--border-color);
     text-align: center;
-    margin-bottom: 1.8rem;
-    letter-spacing: -1px;
-    background: linear-gradient(90deg, #c084fc, #e879f9, #a855f7, #6366f1, #38bdf8, #c084fc);
-    background-size: 300% 300%;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: textGlowMove 5s ease infinite;
 }
 
-/* Cajas Interiores y Formularios */
-.inner-box {
-    background-color: rgba(12, 6, 22, 0.85);
-    border: 1px solid rgba(168, 85, 247, 0.25);
-    border-radius: 1rem;
-    padding: 2rem;
-    max-width: 26rem;
-    margin: 0 auto;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+header h1 {
+    color: white;
+    margin-bottom: 0.25rem;
 }
 
-.form-title {
-    font-size: 1.6rem;
-    font-weight: 700;
-    text-align: center;
-    color: #e9d5ff;
-    margin-bottom: 1.2rem;
-}
-
-.input-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-    margin-bottom: 1rem;
-}
-
-.input-group label {
-    font-size: 0.8rem;
-    color: #d8b4fe;
-    font-weight: 600;
-}
-
-input[type="text"],
-input[type="email"],
-input[type="password"],
-input[type="file"] {
-    width: 100%;
-    background-color: #1c0e35 !important;
-    color: #ffffff !important;
-    border: 1px solid #6b21a8 !important;
-    padding: 0.75rem 1rem;
-    border-radius: 0.6rem;
-    outline: none;
-    font-size: 0.95rem;
-    transition: all 0.3s ease;
-}
-
-input:focus {
-    border-color: #c084fc !important;
-    box-shadow: 0 0 12px rgba(192, 132, 252, 0.5);
-}
-
-/* Botones y Enlaces */
-.btn-violet {
-    width: 100%;
-    background: linear-gradient(90deg, #9333ea, #7e22ce);
-    color: #ffffff;
-    font-weight: 700;
-    padding: 0.8rem;
-    border: none;
-    border-radius: 0.6rem;
-    cursor: pointer;
+header p {
+    color: var(--text-muted);
     font-size: 1rem;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(147, 51, 234, 0.4);
-    margin-top: 0.5rem;
-}
-
-.btn-violet:hover {
-    background: linear-gradient(90deg, #a855f7, #9333ea);
-    box-shadow: 0 0 20px rgba(168, 85, 247, 0.7);
-    transform: translateY(-1px);
-}
-
-.link-violet {
-    color: #c084fc;
-    text-decoration: none;
-    font-size: 0.8rem;
-    transition: color 0.2s;
-}
-
-.link-violet:hover {
-    color: #f0abfc;
-    text-decoration: underline;
-}
-
-/* Navegación Pestañas */
-.tab-nav {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    border-bottom: 1px solid rgba(168, 85, 247, 0.3);
-    padding-bottom: 0.75rem;
     margin-bottom: 1.5rem;
 }
 
-.tab-btn {
-    background: transparent;
+.tool-nav {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.nav-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--border-color);
+    color: var(--text-muted);
     border: none;
-    color: #c084fc;
-    opacity: 0.7;
-    padding: 0.5rem 0.8rem;
-    font-weight: 600;
+    padding: 0.75rem 1.25rem;
+    border-radius: 8px;
     font-size: 0.9rem;
+    font-weight: 700;
     cursor: pointer;
-    border-radius: 0.4rem;
-    transition: all 0.3s;
+    transition: all 0.2s ease;
 }
 
-.tab-btn:hover {
-    opacity: 1;
-    background: rgba(168, 85, 247, 0.15);
+.nav-btn:hover {
+    background: #444;
+    color: white;
 }
 
-.tab-btn.active {
-    opacity: 1;
-    background: rgba(168, 85, 247, 0.25);
-    color: #ffffff;
-    border-bottom: 2px solid #c084fc;
-    box-shadow: 0 0 10px rgba(192, 132, 252, 0.3);
+.nav-btn.active {
+    background: var(--primary-color);
+    color: white;
+    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
 }
 
-/* Utilidades */
-.hidden { display: none !important; }
-.text-center { text-align: center; }
-.mt-2 { margin-top: 0.5rem; }
+.nav-btn svg {
+    margin-bottom: 2px;
+}
+
+/* --- 3. Contenedor Principal de Herramientas --- */
+main {
+    padding: 2rem;
+}
+
+.tool-content {
+    display: none;
+}
+
+.tool-content.active {
+    display: block;
+}
+
+.tool-description {
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+h2 {
+    text-align: center;
+    color: white;
+    margin-bottom: 0.5rem;
+}
+
+/* --- 4. Estilos de Formulario (Común) --- */
+.input-group {
+    display: flex;
+    margin-bottom: 1.5rem;
+}
+
+.input-group input[type="text"] {
+    flex-grow: 1;
+    border: 1px solid var(--border-color);
+    background: #222;
+    color: var(--text-color);
+    padding: 0.8rem;
+    font-size: 1rem;
+    border-radius: 8px 0 0 8px;
+    outline: none;
+}
+
+.input-group button {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0 1.5rem;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    border-radius: 0 8px 8px 0;
+    transition: background-color 0.2s ease;
+}
+
+.input-group button:hover {
+    background: #0056b3;
+}
+
+/* --- 5. Estilos adicionales para la sección de Autenticación (Cuenta) --- */
+#tabAuthContent form {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+#userProfile {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
